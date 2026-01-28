@@ -1,21 +1,62 @@
 import './style.css'
-import { setupCounter } from './counter.ts'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <canvas id="circleGame" width="640" height="480"></canvas>
-  </div>
+const app = document.querySelector<HTMLDivElement>('#app');
+if (!app) throw new Error("Missing app element");
+app.innerHTML = `
+<div>
+  <canvas id="circleGame" width="800" height="600"></canvas>
+  <button id="runButton">Start Game</button>
+</div>
 `
-function draw() {
-  const canvas = document.getElementById("circleGame");
-  const ctx = canvas.getContext("2d");
+const canvas = document.querySelector<HTMLCanvasElement>("#circleGame");
+if (!canvas) throw new Error("Missing game");
+const ctx = canvas.getContext("2d")!;
+if (!ctx) throw new Error("2D context not available");
+let x = canvas.width / 2;
+let y = canvas.height - 30;
+let dx = 2;
+let dy = -2;
+let tick = 0;
+const ballRadius = 10;
 
-  ctx.fillStyle = "rgb(200 0, 0)";
-  ctx.fillRect(10, 10, 50, 50);
-
-  ctx.fillStyle = "rgb(0 0 200 / 50%)";
-  ctx.fillRect(30, 30, 50, 50)
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#0095DD";
+  ctx.fill();
+  ctx.closePath();
 }
 
-draw();
+function drawText() {
+  ctx.beginPath();
+  ctx.fillText
+}
 
+function draw() {
+  ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+  drawBall();
+
+  if (x + dx > canvas!.width - ballRadius || x + dx < ballRadius) {
+    dx = -dx;
+  }
+  if (y + dy > canvas!.height - ballRadius || y + dy < ballRadius) {
+    dy = -dy;
+  }
+  
+  x += dx;
+  y += dy;  
+
+  requestAnimationFrame(draw);
+}
+
+function startGame() {
+  draw();
+}
+
+const runButton = document.querySelector<HTMLButtonElement>("#runButton");
+if (!runButton) throw new Error("Missing run button");
+runButton.addEventListener("click", () => {
+  console.log("click");
+  startGame();
+  runButton.disabled = true;
+});
