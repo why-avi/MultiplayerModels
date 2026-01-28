@@ -1,24 +1,21 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
 import { setupCounter } from './counter.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
+    <canvas id="circleGame" width="640" height="480"></canvas>
   </div>
 `
+function draw() {
+  const canvas = document.getElementById("circleGame");
+  const ctx = canvas.getContext("2d");
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  ctx.fillStyle = "rgb(200 0, 0)";
+  ctx.fillRect(10, 10, 50, 50);
+
+  ctx.fillStyle = "rgb(0 0 200 / 50%)";
+  ctx.fillRect(30, 30, 50, 50)
+}
+
+draw();
+
