@@ -2,28 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mpmodels</title>
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div id="app">
-      <h1 class="title">Multiplayer Sync Models</h1>
-      <div class="panels">
-        <div class="panel">
-          <h2>Player 1</h2>
-          <canvas id="canvas_player1" width="600" height="400"></canvas>
-        </div>
-        <div class="panel">
-          <h2>Player 2</h2>
-          <canvas id="canvas_player2" width="600" height="400"></canvas>
-        </div>
-        <div class="panel">
-          <h2>Server View</h2>
-          <canvas id="canvas_server" width="600" height="400"></canvas>
-        </div>
+    <h1 class="title">Multiplayer Sync Models</h1>
+    <div class="panels">
+      <div class="panel">
+        <h2>Player 1</h2>
+        <canvas id="canvas_player1" width="600" height="400"></canvas>
+      </div>
+      <div class="panel">
+        <h2>Player 2</h2>
+        <canvas id="canvas_player2" width="600" height="400"></canvas>
+      </div>
+      <div class="panel">
+        <h2>Server View</h2>
+        <canvas id="canvas_server" width="600" height="400"></canvas>
       </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
