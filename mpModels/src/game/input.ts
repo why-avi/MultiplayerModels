@@ -27,7 +27,9 @@ export const PLAYER_KEYS: Record<EntityID, Keys> = {
 }
 
 export interface InputPacket {
-    pressTime
+    pressTime: number; 
+    sequenceNumber: number;
+    entityID: EntityID;
 }
 
 export interface InputConstructor {
