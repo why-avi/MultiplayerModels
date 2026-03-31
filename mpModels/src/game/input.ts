@@ -1,38 +1,47 @@
-/*
- * User input handler
- * Player 1: Arrow keys (up/down/left/right)
- * Player 2: A / D keys (left/right only)
- */
+import { EntityID } from "./entity";
+import Decimal from "decimal.js";
+
+
+// Keybind interface.
+export interface Keys {
+    up: string;
+    down: string;
+    left: string;
+    right: string;
+}
+
+// Preassigned keybindings according to player number.
+export const PLAYER_KEYS: Record<EntityID, Keys> = {
+    0: {
+        up: 'KeyW',
+        down: 'KeyS',
+        left: 'KeyA',
+        right: 'KeyD' 
+    },
+    1: {
+        up: 'ArrowUp',
+        down: 'ArrowDown',
+        left: 'ArrowLeft',
+        right: 'ArrowRight'      
+    }
+}
+
+export interface InputPacket {
+    pressTime
+}
+
+export interface InputConstructor {
+    playerID: number;
+    keys: Keys;
+
+}
 
 export class Input {
-    private _held: Set<string>;
-    private _onKeyDown: (e: KeyboardEvent) => void;
-    private _onKeyUp: (e: KeyboardEvent) => void;
 
-    constructor() {
-        this._held = new Set();
-        this._onKeyDown = (e) => this._held.add(e.code);
-        this._onKeyUp   = (e) => this._held.delete(e.code);
-        document.addEventListener('keydown', this._onKeyDown);
-        document.addEventListener('keyup',   this._onKeyUp);
-    }
+    constructor({PlayerID}:InputConstructor) {
 
-    // Returns inputs for both players each frame.
-    getInputs() {
-        const h = this._held;
-        return [
-            {
-                up:    h.has('ArrowUp'),
-                down:  h.has('ArrowDown'),
-                left:  h.has('ArrowLeft'),
-                right: h.has('ArrowRight'),
-            },
-            {
-                left:  h.has('KeyA'),
-                right: h.has('KeyD'),
-            },
-        ];
     }
+    
 
     destroy() {
         document.removeEventListener('keydown', this._onKeyDown);

@@ -1,6 +1,8 @@
 import { Render }     from './src/game/render.js';
-import { Simulation } from './src/game/simulation.js';
-import { Input }      from './src/game/input.js';
+import { GameLoop } from './src/game/gameloop.js';
+import { Keys }      from './src/game/input.js';
+
+
 
 const el = (id: string): HTMLCanvasElement => {
     const element = document.getElementById(id);
@@ -8,8 +10,8 @@ const el = (id: string): HTMLCanvasElement => {
     return element as HTMLCanvasElement;
 };
 
-const simulation = new Simulation();
-const input      = new Input();
+const simulation = new GameLoop();
+
 
 const renders = [
     new Render(el('canvas_player1')),

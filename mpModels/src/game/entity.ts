@@ -2,8 +2,10 @@ import Decimal from 'decimal.js';
 import { Point2D } from './point';
 // Player entity class containing loocation and applies movement.
 
+export type EntityID = number;
+
 export interface EntityConstructor {
-    entityID: number;
+    entityID: EntityID;
     ownerID: number;
     owned: boolean;
     location: Point2D;
@@ -13,7 +15,7 @@ export interface EntityConstructor {
 export class Entity {
     public readonly ownerID: number; // ID number of the client that controls this entity
     public readonly owned: boolean;  // Client determination if it controls this entity
-    public readonly id: number; // ID Number of this entity
+    public readonly id: EntityID; // ID Number of this entity
     
     private location: Point2D;
     private serverLocation: Point2D; // For Snapshot Sync 
@@ -37,5 +39,5 @@ export class Entity {
         this.speed = 2;
     }
 
-    // Apply unput function
+    // Apply input function
 }

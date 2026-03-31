@@ -1,9 +1,11 @@
 /**
  * Renderer for each simulation panel.
  * Wraps a canvas element and provides a draw method for each frame.
+ * Each client holds the entities, their locations, their owner and appearance locally. Only locations ever 
+ *  get updated in both snapshot and lockstep.
  */
 
-import { GameState } from './simulation.js';
+import { GameState } from './gameloop.js';
 
 export class Render {
     private canvas: HTMLCanvasElement;
