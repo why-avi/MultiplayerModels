@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 import { Point2D } from './point';
+import { InputPacket } from './input';
 // Player entity class containing loocation and applies movement.
 
 export type EntityID = number;
@@ -40,4 +41,8 @@ export class Entity {
     }
 
     // Apply input function
+    applyInput(input: InputPacket) {
+        this.location.x = this.location.x.add(this.speed * input.pressTime);
+        this.location.y = this.location.y.add(this.speed * input.pressTime);
+    }
 }
