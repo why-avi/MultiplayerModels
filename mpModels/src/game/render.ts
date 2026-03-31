@@ -3,14 +3,19 @@
  * Wraps a canvas element and provides a draw method for each frame.
  */
 
+import { GameState } from './simulation.js';
+
 export class Render {
-    constructor(canvas) {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+
+    constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
+        this.ctx = canvas.getContext('2d')!;
     }
 
     // Draws one frame given a state from Simulation.getState().
-    draw(state) {
+    draw(state: GameState) {
         const { ctx, canvas } = this;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);

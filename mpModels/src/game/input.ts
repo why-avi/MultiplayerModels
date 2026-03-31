@@ -5,6 +5,10 @@
  */
 
 export class Input {
+    private _held: Set<string>;
+    private _onKeyDown: (e: KeyboardEvent) => void;
+    private _onKeyUp: (e: KeyboardEvent) => void;
+
     constructor() {
         this._held = new Set();
         this._onKeyDown = (e) => this._held.add(e.code);
