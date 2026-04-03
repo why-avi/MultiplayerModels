@@ -3,22 +3,16 @@ import { Point2D } from './point';
 import { InputPacket } from './input';
 // Player entity class containing loocation and applies movement.
 
-export type EntityID = number;
-
 export interface EntityConstructor {
-    entityID: EntityID;
-    ownerID: number;
-    owned: boolean;
+    entityID: number;
     location: Point2D;
     color: string;
 }
 
 export class Entity {
-    public readonly ownerID: number; // ID number of the client that controls this entity
-    public readonly owned: boolean;  // Client determination if it controls this entity
-    public readonly id: EntityID; // ID Number of this entity
+    public readonly id: number; // ID Number of this entity, same as player's id.
+    public  location: Point2D;
     
-    private location: Point2D;
     private serverLocation: Point2D; // For Snapshot Sync 
     private speed: number;
     private color: string;
@@ -29,9 +23,7 @@ export class Entity {
     private loc2: Point2D | undefined;
 
 
-    constructor({ownerID, owned, entityID, location, color}: EntityConstructor) {
-        this.ownerID = ownerID;
-        this.owned = owned;
+    constructor({entityID, color, location}: EntityConstructor) {
         this.id = entityID;
         this.location = location;
         this.serverLocation = location;
@@ -40,9 +32,11 @@ export class Entity {
         this.speed = 2;
     }
 
-    // Apply input function
+    // Move the entity up/down and left/right based on the amount of time a key has been pressed.
     applyInput(input: InputPacket) {
-        this.location.x = this.location.x.add(this.speed * input.pressTime);
-        this.location.y = this.location.y.add(this.speed * input.pressTime);
+        if (input.up)    this.location.y = this.location.y.add(this.speed * input.pressTime);
+        if (input.down)  this.location.y = this.location.y.sub(this.speed * input.pressTime);
+        if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime);
+        if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime);
     }
 }

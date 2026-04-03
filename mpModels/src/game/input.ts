@@ -1,4 +1,3 @@
-import { EntityID } from "./entity";
 // Keybind interface.
 export interface Keys {
     up: string;
@@ -8,7 +7,7 @@ export interface Keys {
 }
 
 // Preassigned keybindings according to player number.
-export const PLAYER_KEYS: Record<EntityID, Keys> = {
+export const PLAYER_KEYS: Record<number, Keys> = {
     0: {
         up: 'KeyW',
         down: 'KeyS',
@@ -24,7 +23,7 @@ export const PLAYER_KEYS: Record<EntityID, Keys> = {
 }
 
 export interface InputPacket {
-    entityID: EntityID;
+    entityID: number;
     pressTime: number; 
     sequenceNumber: number;
     up: boolean;
@@ -35,30 +34,28 @@ export interface InputPacket {
 
 
 export class Input {
-    private sequenceNumber: number;
+    public sequenceNumber: number;
     private pressed: Set<string>;
     private onKeyDown: (e: KeyboardEvent) => void;
     private onKeyUp: (e: KeyboardEvent) => void;
-    private keys: Keys;
+    private keys!: Keys;
 
-    constructor(playerID: number) {
+    constructor() {
         this.sequenceNumber = 0;
         this.pressed = new Set();
         this.onKeyDown = (e) => this.pressed.add(e.code);
         this.onKeyUp = (e) => this.pressed.delete(e.code);
-        this.keys = PLAYER_KEYS[playerID];
         document.addEventListener('keydown', this.onKeyDown as EventListener);
         document.addEventListener('keyup', this.onKeyUp as EventListener);
     }
     
-
     destroy() {
         document.removeEventListener('keydown', this.onKeyDown as EventListener);
         document.removeEventListener('keyup',   this.onKeyUp as EventListener);
     }
 
     // Gives the currently pressed keys, the current time given and the numbered order.
-    getTickInput(time: number, entityId: EntityID):InputPacket {
+    getTickInput(time: number, entityId: number):InputPacket {
         return {
             up: this.pressed.has(this.keys.up),
             down: this.pressed.has(this.keys.down),
@@ -68,5 +65,9 @@ export class Input {
             sequenceNumber: this.sequenceNumber++,
             entityID: entityId
         }
+    }
+
+    setKeys(playerID: number) {
+        this.keys = PLAYER_KEYS[playerID];
     }
 }

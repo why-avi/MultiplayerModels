@@ -1,31 +1,86 @@
 import { Proxy } from "../../network/proxy";
-import { GameConstructor, GameLoop, GameState } from "../gameloop";
-import { Input } from "../input";
+import { Entity } from "../entity";
+import { GameState } from "../gameloop";
 import { Render } from "../render";
+import { SnapshotClient } from "./SnapshotClient";
+import { PLAYER_COLORS, PLAYER_SPAWN } from "../Constants";
+import { InputPacket } from "../input";
+import { Point2D } from "../point";
 
-
-export interface ServerConstructor {
-    players: [];
-    tickRate: number;
-    state: GameState;
-    renderer: Render;
-    network: Proxy;
+export interface Snapshot {
+    entityID: number;
+    location: Point2D;
+    sequenceNumber: number;
 }
 
 export class SnapshotServer {
-    private readonly players: [];
-    private readonly tickRate: number;
-    private state: GameState;
+    private clients: Array<SnapshotClient> = [];
+    private tickRate: number = 0;
+    private state: GameState = {entities: {}};
     private renderer: Render;
-    private network: Proxy;
+    private lastSequenceNumber: Array<number> = [0, 0];
+    
+    public network: Proxy = new Proxy();
 
-    constructor({tickRate, state, renderer}:ServerConstructor) {
-        this.tickRate = tickRate;
-        this.state = state;
-        this.renderer = renderer;
-        this.network = new Proxy();
-        this.players = [];
+    constructor(canvas: HTMLCanvasElement) {
+        this.renderer = new Render(canvas);
+    }
+ 
+    // Connect a client to this server.
+    connect(client: SnapshotClient) {
+        const clientID = this.clients.length;
+        client.setID(clientID);
+        client.setServer(this.network);
+        this.clients.push(client);
+
+        // Create a new entity with the same ID as the connected client.
+        const entity = new Entity({
+            entityID: clientID,
+            color: PLAYER_COLORS[clientID],
+            location: PLAYER_SPAWN[clientID]
+        });
+        this.state.entities[clientID] = entity;
     }
 
+    setTickRate(rate: number) {
+        this.tickRate = rate;
+    }
 
+    update() {
+
+    }
+
+    // Process inputs sent from the clients
+    processMessages() {
+        // Get the messages in the buffer.
+        const messages = this.network.receive();
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+            // Make sure the message is what we're expecting and verify it looks valid.
+            if (message.type === 'inputPacket' && this.validateInput(message.payload)){
+                const id = message.payload.entityID;
+                this.state.entities[id].applyInput(message.payload);
+                this.lastSequenceNumber[id] = message.payload.sequenceNumber;
+            }
+        }
+    }
+
+    // Validate input
+    validateInput(input: InputPacket) {
+        if (Math.abs(input.pressTime) > 1 / this.tickRate) return false;
+        return true;
+    }
+    
+    // Send game state to clients
+    sendGameState(){
+        let snapshot: Snapshot[] = [];
+        const numClients = this.clients.length;
+        for (let i = 0; i < numClients; i++) {
+            snapshot.push({
+                entityID: this.state.entities[i].id,
+                location: this.state.entities[i].location,
+                sequenceNumber: this.lastSequenceNumber[i]
+            })
+        }
+    }
 }

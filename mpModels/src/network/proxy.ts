@@ -1,12 +1,18 @@
+import { InputPacket } from "../game/input";
+import { Snapshot } from "../game/Snapshot/SnapshotServer";
 /**
  * Message queue that with simulated latency and packet loss. Payload messages
  * may contain information for either snapshot or lockstep sync models.
  */
 
 interface Message {
-    payload: any;
+    payload: NetworkMessage
     arrivalTime: number;
 }
+
+export type NetworkMessage = 
+| { type: 'inputPacket'; payload: InputPacket }
+| { type: 'snapshot';   payload:  Snapshot };
 
 export class Proxy {
     private messages: Message[];   
@@ -18,11 +24,11 @@ export class Proxy {
     }
 
     // Takes a message from an authoritative server or fellow client and store in a queue.
-    send(payload: any, latency: number) {
+    send(message: NetworkMessage, latency: number) {
         // Exits process if this packet is "lost"
         if (Math.random() < this.lossRate) return;
         this.messages.push({
-            payload: payload,
+            payload: message,
             arrivalTime: +new Date() + latency,
         });
     }

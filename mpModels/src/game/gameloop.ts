@@ -1,4 +1,4 @@
-import { Entity, EntityID } from "./entity";
+import { Entity } from "./entity";
 import { Input } from "./input";
 import { Render } from "./render";
 import { Proxy } from "../network/proxy";
@@ -8,53 +8,31 @@ import { Proxy } from "../network/proxy";
  */
 
 export interface GameState {
-    entities: Record<EntityID, Entity>;
-}
-
-export interface GameConstructor {
-    playerID: number;
-    tickRate: number;
-    state: GameState;
-    renderer: Render;
-    localInput: Input;
-    network: Proxy;
+    entities: Record<number, Entity>;
 }
 
 export class GameLoop {
-    private playerID: number;
-    private tickRate: number;
-    private state: GameState;
-    private renderer: Render;
-    private localInput: Input;
+    protected playerID: number = -1;
+    protected tickRate: number = 0;
+    protected state: GameState = {entities: {}};
+    protected renderer: Render;
+    protected localInput!: Input;
+    protected latency: number = 0; // MS delay in communication
+    
+    public network: Proxy = new Proxy();
 
-    private network: Proxy;
-
-    constructor({playerID, tickRate, state, renderer, localInput, network}:GameConstructor) {
-        this.playerID = playerID;
-        this.tickRate = tickRate;
-        this.state = state;
-        this.renderer = renderer
-        this.localInput = localInput
-        this.network = network
-
+    constructor(canvas: HTMLCanvasElement) {
+        this.renderer = new Render(canvas);
     }
 
-   /* Listens for both player's inputs - pre-netwo implementation.  
-    update(dt: number, inputs: PlayerInput[]) {
-        const [p1Input, p2Input] = inputs;
-        const [p1, p2] = this.players;
+    setTickRate(rate: number) {
+        this.tickRate = rate;
+    }
+    
+    // Lets a server assign the client with an id. Determines keybindings for this client.
+    setID(newID: number) {
+        this.playerID = newID;
+        this.localInput.setKeys(newID);
+    }
 
-        if (p1Input.up)    p1.y -= p1.speed * dt;
-        if (p1Input.down)  p1.y += p1.speed * dt;
-        if (p1Input.left)  p1.x -= p1.speed * dt;
-        if (p1Input.right) p1.x += p1.speed * dt;
-
-        if (p2Input.left)  p2.x -= p2.speed * dt;
-        if (p2Input.right) p2.x += p2.speed * dt;
-
-        for (const p of this.players) {
-            p.x = Math.max(p.radius, Math.min(CANVAS_WIDTH  - p.radius, p.x));
-            p.y = Math.max(p.radius, Math.min(CANVAS_HEIGHT - p.radius, p.y));
-        }
-    } */
 }
