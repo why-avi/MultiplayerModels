@@ -12,7 +12,7 @@ interface Message {
 
 export type NetworkMessage = 
 | { type: 'inputPacket'; payload: InputPacket }
-| { type: 'snapshot';   payload:  Snapshot };
+| { type: 'snapshot';   payload:  Snapshot[] };
 
 export class Proxy {
     private messages: Message[];   

@@ -6,6 +6,7 @@ import { SnapshotClient } from "./SnapshotClient";
 import { PLAYER_COLORS, PLAYER_SPAWN } from "../Constants";
 import { InputPacket } from "../Input";
 import { Point2D } from "../Point";
+import { NetworkMessage } from "../../network/Proxy";
 
 export interface Snapshot {
     entityID: number;
@@ -47,7 +48,9 @@ export class SnapshotServer {
     }
 
     update() {
-
+        this.processMessages();
+        this.sendGameState();
+        this.renderer.draw(this.state);
     }
 
     // Process inputs sent from the clients
@@ -58,6 +61,7 @@ export class SnapshotServer {
             const message = messages[i];
             // Make sure the message is what we're expecting and verify it looks valid.
             if (message.type === 'inputPacket' && this.validateInput(message.payload)){
+                // ADD LOGGING HERE
                 const id = message.payload.entityID;
                 this.state.entities[id].applyInput(message.payload);
                 this.lastSequenceNumber[id] = message.payload.sequenceNumber;
@@ -73,6 +77,7 @@ export class SnapshotServer {
     
     // Send game state to clients
     sendGameState(){
+        // Create an array holding the state of each entity to send
         let snapshot: Snapshot[] = [];
         const numClients = this.clients.length;
         for (let i = 0; i < numClients; i++) {
@@ -80,7 +85,13 @@ export class SnapshotServer {
                 entityID: this.state.entities[i].id,
                 location: this.state.entities[i].location,
                 sequenceNumber: this.lastSequenceNumber[i]
-            })
+            });
+        }
+        const message: NetworkMessage = {type: 'snapshot', payload: snapshot}
+
+        // Send game state snapshot to each client.
+        for (let i = 0; i < numClients; i++) {
+            this.clients[i].serverProxy.send(message, this.clients[i].latency);
         }
     }
 }
