@@ -1,5 +1,5 @@
 import { Entity } from "./Entity";
-import { Input } from "./Input";
+import { Input, InputPacket } from "./Input";
 import { Render } from "./Render";
 import { Proxy } from "../network/Proxy";
 /**
@@ -17,7 +17,7 @@ export class GameLoop {
     protected state: GameState = {entities: {}};
     protected renderer: Render;
     protected localInput!: Input;
-    protected pendingInputs: Array<any> = [];
+    protected pendingInputs: Array<InputPacket> = [];
     
     public network: Proxy = new Proxy();
     public latency: number = 0; // MS delay in communication

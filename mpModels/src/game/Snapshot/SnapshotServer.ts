@@ -3,7 +3,6 @@ import { Entity } from "../Entity";
 import { GameState } from "../GameLoop";
 import { Render } from "../Render";
 import { SnapshotClient } from "./SnapshotClient";
-import { PLAYER_COLORS, PLAYER_SPAWN } from "../Constants";
 import { InputPacket } from "../Input";
 import { Point2D } from "../Point";
 import { NetworkMessage } from "../../network/Proxy";
@@ -11,7 +10,7 @@ import { NetworkMessage } from "../../network/Proxy";
 export interface Snapshot {
     entityID: number;
     location: Point2D;
-    sequenceNumber: number;
+    lastSequenceNumber: number;
 }
 
 export class SnapshotServer {
@@ -83,7 +82,7 @@ export class SnapshotServer {
             snapshot.push({
                 entityID: this.state.entities[i].id,
                 location: this.state.entities[i].location,
-                sequenceNumber: this.lastSequenceNumber[i]
+                lastSequenceNumber: this.lastSequenceNumber[i]
             });
         }
         const message: NetworkMessage = {type: 'snapshot', payload: snapshot}

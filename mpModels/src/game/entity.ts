@@ -13,7 +13,7 @@ export class Entity {
     private color: string;
 
     // Snapshot Interpolation variables
-    private locBuffer = [];
+    private locBuffer: Array<Array<any>> = [];
     private loc1: Point2D | undefined;
     private loc2: Point2D | undefined;
 
@@ -23,7 +23,6 @@ export class Entity {
         this.location = PLAYER_SPAWN[entityID];
         this.serverLocation = this.location;
         this.color = PLAYER_COLORS[entityID];
-        this.locBuffer = [];
         this.speed = 2;
     }
 
@@ -33,5 +32,17 @@ export class Entity {
         if (input.down)  this.location.y = this.location.y.sub(this.speed * input.pressTime);
         if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime);
         if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime);
+    }
+
+    setServerLocation(loc: Point2D) {
+        this.serverLocation = loc;
+    }
+
+    setLocation(loc: Point2D) {
+        this.location = loc;
+    }
+
+    addToLocationBuffer(loc: Array<any>) {
+        this.locBuffer.push(loc);
     }
 }
