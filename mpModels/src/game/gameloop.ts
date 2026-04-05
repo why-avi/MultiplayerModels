@@ -17,10 +17,10 @@ export class GameLoop {
     protected state: GameState = {entities: {}};
     protected renderer: Render;
     protected localInput!: Input;
-    protected latency: number = 0; // MS delay in communication
     protected pendingInputs: Array<any> = [];
     
     public network: Proxy = new Proxy();
+    public latency: number = 0; // MS delay in communication
 
     constructor(canvas: HTMLCanvasElement) {
         this.renderer = new Render(canvas);
@@ -33,7 +33,7 @@ export class GameLoop {
     // Lets a server assign the client with an id. Determines keybindings for this client.
     setID(newID: number) {
         this.playerID = newID;
-        this.localInput = new Input();
+        this.localInput = new Input(this.playerID);
     }
 
 }
