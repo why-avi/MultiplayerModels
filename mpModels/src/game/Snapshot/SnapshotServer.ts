@@ -1,11 +1,11 @@
-import { Proxy } from "../../network/proxy";
-import { Entity } from "../entity";
-import { GameState } from "../gameloop";
-import { Render } from "../render";
+import { Proxy } from "../../network/Proxy";
+import { Entity } from "../Entity";
+import { GameState } from "../GameLoop";
+import { Render } from "../Render";
 import { SnapshotClient } from "./SnapshotClient";
 import { PLAYER_COLORS, PLAYER_SPAWN } from "../Constants";
-import { InputPacket } from "../input";
-import { Point2D } from "../point";
+import { InputPacket } from "../Input";
+import { Point2D } from "../Point";
 
 export interface Snapshot {
     entityID: number;

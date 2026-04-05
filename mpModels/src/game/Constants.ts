@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { Point2D } from "./point";
+import { Point2D } from "./Point";
 
 export const CANVAS_WIDTH  = 800;
 export const CANVAS_HEIGHT = 80;

@@ -1,4 +1,4 @@
-import { InputPacket } from "../game/input";
+import { InputPacket } from "../game/Input";
 import { Snapshot } from "../game/Snapshot/SnapshotServer";
 /**
  * Message queue that with simulated latency and packet loss. Payload messages

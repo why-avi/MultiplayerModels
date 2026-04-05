@@ -1,7 +1,7 @@
-import { Entity } from "./entity";
-import { Input } from "./input";
-import { Render } from "./render";
-import { Proxy } from "../network/proxy";
+import { Entity } from "./Entity";
+import { Input } from "./Input";
+import { Render } from "./Render";
+import { Proxy } from "../network/Proxy";
 /**
  * Base gameloop class. Processes inputs by recording their press time 
  *  
@@ -18,6 +18,7 @@ export class GameLoop {
     protected renderer: Render;
     protected localInput!: Input;
     protected latency: number = 0; // MS delay in communication
+    protected pendingInputs: Array<any> = [];
     
     public network: Proxy = new Proxy();
 
@@ -32,7 +33,7 @@ export class GameLoop {
     // Lets a server assign the client with an id. Determines keybindings for this client.
     setID(newID: number) {
         this.playerID = newID;
-        this.localInput.setKeys(newID);
+        this.localInput = new Input();
     }
 
 }

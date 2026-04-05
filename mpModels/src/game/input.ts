@@ -40,7 +40,8 @@ export class Input {
     private onKeyUp: (e: KeyboardEvent) => void;
     private keys!: Keys;
 
-    constructor() {
+    constructor(id: number) {
+        this.keys = PLAYER_KEYS[id];
         this.sequenceNumber = 0;
         this.pressed = new Set();
         this.onKeyDown = (e) => this.pressed.add(e.code);
@@ -65,9 +66,5 @@ export class Input {
             sequenceNumber: this.sequenceNumber++,
             entityID: entityId
         }
-    }
-
-    setKeys(playerID: number) {
-        this.keys = PLAYER_KEYS[playerID];
     }
 }

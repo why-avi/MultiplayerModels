@@ -1,7 +1,7 @@
-import { GameLoop } from "../gameloop";
+import { GameLoop } from "../GameLoop";
 import { SnapshotServer } from "./SnapshotServer"
-import { Input, InputPacket } from "../input";
-import { Proxy } from "../../network/proxy";
+import { Input, InputPacket } from "../Input";
+import { Proxy } from "../../network/Proxy";
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -21,7 +21,6 @@ export class SnapshotClient extends GameLoop {
     private serverPositions: boolean = false;
 
     // Optional Snapshot settings required variables
-    private pendingInputs: Array<any> = [];
     private inputSequence: number = 0;
 
     constructor(canvas: HTMLCanvasElement){

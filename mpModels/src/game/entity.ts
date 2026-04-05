@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
-import { Point2D } from './point';
-import { InputPacket } from './input';
+import { Point2D } from './Point';
+import { InputPacket } from './Input';
 // Player entity class containing loocation and applies movement.
 
 export interface EntityConstructor {

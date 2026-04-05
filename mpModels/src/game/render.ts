@@ -5,7 +5,7 @@
  *  get updated in both snapshot and lockstep.
  */
 
-import { GameState } from './gameloop.js';
+import { GameState } from './GameLoop.js';
 
 export class Render {
     private canvas: HTMLCanvasElement;

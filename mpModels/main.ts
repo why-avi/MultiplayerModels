@@ -1,6 +1,6 @@
-import { Render }     from './src/game/render.js';
-import { GameLoop } from './src/game/gameloop.js';
-import { Keys }      from './src/game/input.js';
+import { Render }     from './src/game/Render.js';
+import { GameLoop } from './src/game/GameLoop.js';
+import { Keys }      from './src/game/Input.js';
 
 
 
