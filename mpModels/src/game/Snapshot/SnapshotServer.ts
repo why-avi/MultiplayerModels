@@ -35,11 +35,7 @@ export class SnapshotServer {
         this.clients.push(client);
 
         // Create a new entity with the same ID as the connected client.
-        const entity = new Entity({
-            entityID: clientID,
-            color: PLAYER_COLORS[clientID],
-            location: PLAYER_SPAWN[clientID]
-        });
+        const entity = new Entity(clientID);
         this.state.entities[clientID] = entity;
     }
 
@@ -57,6 +53,9 @@ export class SnapshotServer {
     processMessages() {
         // Get the messages in the buffer.
         const messages = this.network.receive();
+        
+        if (!messages) return; // Stop the process if there are no messages.
+
         for (let i = 0; i < messages.length; i++) {
             const message = messages[i];
             // Make sure the message is what we're expecting and verify it looks valid.

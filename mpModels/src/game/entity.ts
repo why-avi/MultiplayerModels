@@ -1,13 +1,8 @@
 import Decimal from 'decimal.js';
 import { Point2D } from './Point';
 import { InputPacket } from './Input';
+import { PLAYER_COLORS, PLAYER_SPAWN } from './Constants';
 // Player entity class containing loocation and applies movement.
-
-export interface EntityConstructor {
-    entityID: number;
-    location: Point2D;
-    color: string;
-}
 
 export class Entity {
     public readonly id: number; // ID Number of this entity, same as player's id.
@@ -23,11 +18,11 @@ export class Entity {
     private loc2: Point2D | undefined;
 
 
-    constructor({entityID, color, location}: EntityConstructor) {
+    constructor(entityID: number) {
         this.id = entityID;
-        this.location = location;
-        this.serverLocation = location;
-        this.color = color;
+        this.location = PLAYER_SPAWN[entityID];
+        this.serverLocation = this.location;
+        this.color = PLAYER_COLORS[entityID];
         this.locBuffer = [];
         this.speed = 2;
     }
