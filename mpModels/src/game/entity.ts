@@ -6,16 +6,17 @@ import { PLAYER_COLORS, PLAYER_SPAWN } from './Constants';
 
 export class Entity {
     public readonly id: number; // ID Number of this entity, same as player's id.
-    public  location: Point2D;
+    public location: Point2D;
+    public color: string;
+    public serverLocation: Point2D; // For Snapshot Sync 
     
-    private serverLocation: Point2D; // For Snapshot Sync 
     private speed: number;
-    private color: string;
+    
 
     // Snapshot Interpolation variables
-    private locBuffer: Array<Array<any>> = [];
-    private loc1: Point2D | undefined;
-    private loc2: Point2D | undefined;
+    private locBuffer: Array<[number, Point2D]> = [];
+    private loc0: Point2D | null;
+    private loc1: Point2D | null;
 
 
     constructor(entityID: number) {
@@ -27,22 +28,31 @@ export class Entity {
     }
 
     // Move the entity up/down and left/right based on the amount of time a key has been pressed.
-    applyInput(input: InputPacket) {
+    public applyInput(input: InputPacket): void {
         if (input.up)    this.location.y = this.location.y.add(this.speed * input.pressTime);
         if (input.down)  this.location.y = this.location.y.sub(this.speed * input.pressTime);
         if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime);
         if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime);
     }
 
-    setServerLocation(loc: Point2D) {
+    public setServerLocation(loc: Point2D): void {
         this.serverLocation = loc;
     }
 
-    setLocation(loc: Point2D) {
+    public setLocation(loc: Point2D): void {
         this.location = loc;
     }
 
-    addToLocationBuffer(loc: Array<any>) {
+    public addToLocationBuffer(loc: Array<any>): void {
         this.locBuffer.push(loc);
+    }
+
+    public getBuffer(): Array<[number, Point2D]> {
+        return this.locBuffer;
+    }
+
+    public saveInterpLocation(l1: Point2D | null, l2: Point2D | null) {
+        this.loc0 = l1;
+        this.loc1 = l2;
     }
 }

@@ -12,7 +12,6 @@ import { Entity } from "../Entity";
 
 
 export class SnapshotClient extends GameLoop {
-    public serverProxy!: Proxy; // Authoritative Server
     private timestamp_last: number = 0;
 
     // Optional Snapshot settings
@@ -34,7 +33,7 @@ export class SnapshotClient extends GameLoop {
         this.processMessages();
 
         // Check for server connection.
-        if (!this.serverProxy) {
+        if (!this.network) {
             return;
         }
 
@@ -55,7 +54,7 @@ export class SnapshotClient extends GameLoop {
         const input = this.localInput.getTickInput(timestamp_delta, this.playerID);
 
         // Send input to server and iterate sequence.
-        this.serverProxy.send({type: 'inputPacket', payload: input}, this.latency);
+        this.network.send({type: 'inputPacket', payload: input}, this.latency);
         // Client-side prediction
         if (this.prediction) this.state.entities[this.playerID].applyInput(input);
 
@@ -122,10 +121,38 @@ export class SnapshotClient extends GameLoop {
     inerpolateEntities() {
         // Move entities between two locations sent by the server that were stored in a buffer.
         
+        const now = +new Date();
+        const renderTimestamp = now - (1000.0 / this.tickRate);
+
+        for (const i in this.state.entities) {
+            const entity = this.state.entities[i];
+
+            // Do not interpolate this player's entity
+            if (entity.id == this.playerID) continue;
+
+            const buffer = entity.getBuffer();
+
+            if (buffer.length >= 2 && buffer[0][0] <= renderTimestamp && renderTimestamp <= buffer[1][0]) {
+                const time0 = buffer[0][0];
+                const time1 = buffer[1][0];
+                const loc0  = buffer[0][1];
+                const loc1  = buffer[1][1];
+
+                const time = (renderTimestamp - time0) / (time1 - time0);
+
+                entity.location.x = loc0.x.add(loc1.x.sub(loc0.x).mul(time));
+                entity.location.y = loc0.y.add(loc1.y.sub(loc1.y).mul(time));
+
+                entity.saveInterpLocation(loc0, loc1); 
+            } else {
+                entity.saveInterpLocation(null, null);
+            }
+
+        }
     }
 
     setServer(server: Proxy) {
-        this.serverProxy = server;
+        this.network = server;
     }
 
 

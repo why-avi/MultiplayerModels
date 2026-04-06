@@ -5,33 +5,85 @@
  *  get updated in both snapshot and lockstep.
  */
 
+import { Entity } from './Entity.js';
 import { GameState } from './GameLoop.js';
+import { Point2D, toUnsafePoint2D, UnsafePoint2D } from './Point.js';
+
+interface RenderOptions {
+    interpolation?: boolean;
+    serverPositions?: boolean;
+}
 
 export class Render {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    private interpolation: boolean = false;
+    private options: RenderOptions;
+    private localID: number;
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, options: RenderOptions = {}, localEntityID: number) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d')!;
+        this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        this.options = options;
+        this.localID = localEntityID;
     }
 
-    // Draws one frame given a state from Simulation.getState().
-    draw(state: GameState) {
-        const { ctx, canvas } = this;
+    public setInterp(set: boolean) {
+        this.interpolation = set;
+    }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    public draw(oldState: GameState, newState: GameState, alpha: number): void {
+        if (!oldState || !newState) return;
 
-        state.players.forEach((player, i) => {
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-            ctx.fillStyle = player.color;
-            ctx.fill();
+        this.clear();
+        this.drawEntities(oldState, newState, alpha);        
+    }
 
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`P${i + 1}`, player.x, player.y - player.radius - 6);
+    private clear(): void {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
+    private drawEntities(oldState: GameState, newState: GameState, alpha: number): void {
+        Object.values(newState.entities).forEach((entity) => {
+            this.drawCircle(entity as Entity, 
+                // Translate entity positions and interpolate
+                this.interpolate(
+                    toUnsafePoint2D((oldState.entities[entity.id] as Entity).location),
+                    toUnsafePoint2D((newState.entities[entity.id] as Entity).location),
+                    alpha
+                )
+            )
+            if (this.options.serverPositions) {
+                this.drawServerPositons(entity, toUnsafePoint2D(entity.serverLocation));
+            }
         });
     }
+
+    private drawCircle(entity: Entity, {x, y}: UnsafePoint2D): void {
+        const radius = this.canvas.height * 0.9 / 2;
+        this.ctx.fillStyle = entity.color;
+        this.ctx.lineWidth = 5;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+    }
+
+    private drawServerPositons(entity: Entity, {x, y}: UnsafePoint2D): void {
+        if (this.localID == entity.id) {
+            
+        }
+    }
+    
+    private interpolate({x: oldX, y: oldY}: UnsafePoint2D, {x: newX, y: newY}: UnsafePoint2D, alpha: number): UnsafePoint2D {
+        // No interpolation 
+        if (!this.options.interpolation) return {x: newX, y: newY};
+
+        // Interpolated positons
+        return {
+            x: oldX + (newX - oldX) * alpha,
+            y: oldY + (newY - oldY) * alpha
+        };
+    }
+
+
 }

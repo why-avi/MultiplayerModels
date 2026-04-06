@@ -77,19 +77,19 @@ export class SnapshotServer {
     sendGameState(){
         // Create an array holding the state of each entity to send
         let snapshot: Snapshot[] = [];
-        const numClients = this.clients.length;
-        for (let i = 0; i < numClients; i++) {
+
+        Object.values(this.state.entities).forEach((entity) => {
             snapshot.push({
-                entityID: this.state.entities[i].id,
-                location: this.state.entities[i].location,
-                lastSequenceNumber: this.lastSequenceNumber[i]
+                entityID: entity.id,
+                location: entity.location,
+                lastSequenceNumber: this.lastSequenceNumber[entity.id]
             });
-        }
+        })
         const message: NetworkMessage = {type: 'snapshot', payload: snapshot}
 
-        // Send game state snapshot to each client.
-        for (let i = 0; i < numClients; i++) {
-            this.clients[i].serverProxy.send(message, this.clients[i].latency);
+        // Send game state snapshot to each client.        
+        for (let i = 0; i < this.clients.length; i++) {
+            this.clients[i].network.send(message, this.clients[i].latency);
         }
     }
 }
