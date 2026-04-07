@@ -1,3 +1,6 @@
+import { Entity } from './Entity.js';
+import { GameState } from './GameLoop.js';
+import { toUnsafePoint2D, UnsafePoint2D } from './Point.js';
 /**
  * Renderer for each simulation panel.
  * Wraps a canvas element and provides a draw method for each frame.
@@ -5,9 +8,6 @@
  *  get updated in both snapshot and lockstep.
  */
 
-import { Entity } from './Entity.js';
-import { GameState } from './GameLoop.js';
-import { Point2D, toUnsafePoint2D, UnsafePoint2D } from './Point.js';
 
 interface RenderOptions {
     interpolation?: boolean;
@@ -29,6 +29,10 @@ export class Render {
 
     public setInterp(set: boolean) {
         this.options.interpolation = set;
+    }
+
+    public setServerPositions(set: boolean) {
+        this.options.serverPositions = set;
     }
 
     public draw(oldState: GameState, newState: GameState, alpha: number): void {
@@ -70,6 +74,11 @@ export class Render {
         this.ctx.beginPath();
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
         this.ctx.fill();
+        if (color != 'rgba(0, 0, 0, 0.2') {
+            this.ctx.lineWidth = 5;
+            this.ctx.strokeStyle = "black"
+            this.ctx.stroke();
+        }
     }
 
     private drawServerPositions(entity: Entity): void {

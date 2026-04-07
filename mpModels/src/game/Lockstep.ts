@@ -12,13 +12,15 @@ export class LockStep extends GameLoop {
     private sentInput: boolean = false;
     private tickInputs: Map<number, InputPacket[]> = new Map();
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, id: number) {
         super(canvas)
         this.tickRate = 10;
+        this.setID(id);
     }
 
     connect(peer: Proxy): void {
         this.peers.push(peer);
+
     }
 
     update(): void {

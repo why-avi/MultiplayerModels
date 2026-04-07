@@ -7,21 +7,24 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <h1 class="title">Multiplayer Sync Models</h1>
-    <div class="panels">
-      <div class="panel">
-        <h2>Player 1</h2>
-        <canvas id="canvas_player1" width="800" height="80"></canvas>
+          <div class="sim-panel">
+        <h2>Snapshot (Client/Server)</h2>
+        <div class="canvas-label">Player 1 View</div>
+        <canvas id="snapshotCanvas0" width="800" height="80"></canvas>
+        <div class="canvas-label">Server View</div>
+        <canvas id="serverCanvas" width="800" height="80"></canvas>
+        <div class="canvas-label">Player 2 View</div>
+        <canvas id="snapshotCanvas1" width="800" height="80"></canvas>
       </div>
-      <div class="panel">
-        <h2>Player 2</h2>
-        <canvas id="canvas_player2" width="800" height="80"></canvas>
+
+      <div class="sim-panel">
+        <h2>Lockstep (P2P)</h2>
+        <div class="canvas-label">
+          <p><b>Player 1 View</b> Controls: A and D<br> Latency = <input>ms</p>
+          <canvas id="lockstepCanvas0" width="800" height="80"></canvas>
+        </div>
+
+        <div class="canvas-label">Player 2 View</div>
+        <canvas id="lockstepCanvas1" width="800" height="80"></canvas>
       </div>
-      <div class="panel">
-        <h2>Server View</h2>
-        <canvas id="canvas_server" width="800" height="80"></canvas>
-      </div>
-    </div>
-    <script type="module" src="./dist/main.js"></script>
-  </body>
 </html>

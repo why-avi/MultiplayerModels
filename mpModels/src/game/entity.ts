@@ -1,7 +1,6 @@
-import Decimal from 'decimal.js';
 import { Point2D } from './Point';
 import { InputPacket } from './Input';
-import { PLAYER_COLORS, PLAYER_SPAWN } from './Constants';
+import { PLAYERS, PLAYER_SPAWN } from './Constants';
 // Player entity class containing loocation and applies movement.
 
 export class Entity {
@@ -23,8 +22,8 @@ export class Entity {
         this.id = entityID;
         this.location = PLAYER_SPAWN[entityID];
         this.serverLocation = this.location;
-        this.color = PLAYER_COLORS[entityID];
-        this.speed = 200;
+        this.color = PLAYERS[entityID];
+        this.speed = 100;
         this.loc0 = null;
         this.loc1 = null;
     }

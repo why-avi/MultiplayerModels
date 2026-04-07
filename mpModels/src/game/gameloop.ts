@@ -23,6 +23,8 @@ export abstract class GameLoop {
     public network: Proxy = new Proxy();
     public latency: number = 10; // MS delay in communication
 
+    abstract update(): void
+
     constructor(canvas: HTMLCanvasElement) {
         this.renderer = new Render(canvas, {interpolation: false}, this.playerID);
     }

@@ -4,6 +4,7 @@ import { Input, InputPacket } from "../Input";
 import { Proxy } from "../../network/Proxy";
 import { Entity } from "../Entity";
 import { cloneDeep } from 'lodash';
+
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -17,7 +18,7 @@ export class SnapshotClient extends GameLoop {
     public server!: Proxy;
 
     // Optional Snapshot settings
-    private prediction: boolean = true;
+    private prediction: boolean = false;
     private reconciliation: boolean = false;
     private interpolation: boolean = false;
     private serverPositions: boolean = false;
@@ -27,6 +28,7 @@ export class SnapshotClient extends GameLoop {
 
     constructor(canvas: HTMLCanvasElement){
         super(canvas);
+
     }
 
 
