@@ -15,22 +15,23 @@ export interface Snapshot {
 
 export class SnapshotServer {
     private clients: Array<SnapshotClient> = [];
-    private tickRate: number = 0;
+    private tickRate: number = 10;
     private state: GameState = {entities: {}};
     private renderer: Render;
-    private lastSequenceNumber: Array<number> = [0, 0];
+    private lastSequenceNumber: Record<number, number> = {};
     
     public network: Proxy = new Proxy();
 
     constructor(canvas: HTMLCanvasElement) {
-        this.renderer = new Render(canvas);
+        this.renderer = new Render(canvas, {interpolation: false}, -1);
     }
  
     // Connect a client to this server.
     connect(client: SnapshotClient) {
         const clientID = this.clients.length;
-        client.setID(clientID);
+        client.setID(clientID)
         client.setServer(this.network);
+        client.setTickRate(this.tickRate);
         this.clients.push(client);
 
         // Create a new entity with the same ID as the connected client.
@@ -45,7 +46,7 @@ export class SnapshotServer {
     update() {
         this.processMessages();
         this.sendGameState();
-        this.renderer.draw(this.state);
+        this.renderer.draw({entities: {}}, this.state, 0);
     }
 
     // Process inputs sent from the clients
@@ -69,7 +70,7 @@ export class SnapshotServer {
 
     // Validate input
     validateInput(input: InputPacket) {
-        if (Math.abs(input.pressTime) > 1 / this.tickRate) return false;
+        if (Math.abs(input.pressTime) > 2 / this.tickRate) return false;
         return true;
     }
     

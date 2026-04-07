@@ -67,4 +67,8 @@ export class Input {
             entityID: entityId
         }
     }
+
+    changeKeys(id: number) {
+        this.keys = PLAYER_KEYS[id];
+    }
 }

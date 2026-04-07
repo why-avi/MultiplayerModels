@@ -13,6 +13,7 @@ import { Entity } from "../Entity";
 
 export class SnapshotClient extends GameLoop {
     private timestamp_last: number = 0;
+    public server!: Proxy;
 
     // Optional Snapshot settings
     private prediction: boolean = true;
@@ -24,7 +25,7 @@ export class SnapshotClient extends GameLoop {
     private inputSequence: number = 0;
 
     constructor(canvas: HTMLCanvasElement){
-        super(canvas)
+        super(canvas);
     }
 
 
@@ -33,7 +34,7 @@ export class SnapshotClient extends GameLoop {
         this.processMessages();
 
         // Check for server connection.
-        if (!this.network) {
+        if (!this.server) {
             return;
         }
 
@@ -41,7 +42,7 @@ export class SnapshotClient extends GameLoop {
         this.processInput();
 
         // Interpolate non-owned entities.
-        if (this.interpolation) this.inerpolateEntities();
+        if (this.interpolation) this.interpolateEntities();
     }
 
     processInput() {
@@ -54,7 +55,7 @@ export class SnapshotClient extends GameLoop {
         const input = this.localInput.getTickInput(timestamp_delta, this.playerID);
 
         // Send input to server and iterate sequence.
-        this.network.send({type: 'inputPacket', payload: input}, this.latency);
+        this.server.send({type: 'inputPacket', payload: input}, this.latency);
         // Client-side prediction
         if (this.prediction) this.state.entities[this.playerID].applyInput(input);
 
@@ -75,50 +76,51 @@ export class SnapshotClient extends GameLoop {
             if (message.type === 'snapshot') { 
                 const snapshot = message.payload;
                 
-                // Add a representation of an entity if it doesn't already exist.
-                if (!this.state.entities[snapshot[i].entityID]) {
-                    const entity = new Entity(snapshot[i].entityID);
-                    this.state.entities[entity.id] = entity;
-                }
+                for (let j = 0; j < snapshot.length; j++) {
+                    // Add a representation of an entity if it doesn't already exist.
+                    if (!this.state.entities[snapshot[j].entityID]) {
+                        const entity = new Entity(snapshot[j].entityID);
+                        this.state.entities[entity.id] = entity;
+                    }
 
-                const entity = this.state.entities[snapshot[i].entityID];
-                entity.setServerLocation(entity.location);
+                    const entity = this.state.entities[snapshot[j].entityID];
+                    entity.setServerLocation(snapshot[j].location);
 
-                if (entity.id === this.playerID) { // Process for this player's entity.
-                    // Official location of this player's entity received, set.
-                    this.state.entities[this.playerID].setLocation(entity.location);
+                    if (entity.id === this.playerID) { // Process for this player's entity.
+                        // Official location of this player's entity received, set.
+                        this.state.entities[this.playerID].setLocation(snapshot[j].location);
 
-                    // Server reconciliation process.
-                    // Execute all inputs that have been stored in the buffer starting from the 
-                    //  last input the server has processed.
-                    if (this.reconciliation) { 
-                        let j = 0;
-                        // Delete all buffered inputs that the server has reported as processed.
-                        this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber <= snapshot[i].lastSequenceNumber);
-                        // Apply the leftover inputs.
-                        while (j < this.pendingInputs.length) {
-                            const input = this.pendingInputs[j];
-                            entity.applyInput(input);
-                            j++;
+                        // Server reconciliation process.
+                        // Execute all inputs that have been stored in the buffer starting from the 
+                        //  last input the server has processed.
+                        if (this.reconciliation) { 
+                            let k = 0;
+                            // Delete all buffered inputs that the server has reported as processed.
+                            this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber > snapshot[j].lastSequenceNumber);
+                            // Apply the leftover inputs.
+                            while (k < this.pendingInputs.length) {
+                                const input = this.pendingInputs[k];
+                                entity.applyInput(input);
+                                k++;
+                            }
+                        } else this.pendingInputs = []; // No reconcilliaton so drop the saved inputs.
+                    } else { // Process for other entities.
+                        
+                        if (!this.interpolation) {
+                            // No interpolation, simply set the new location.
+                            entity.setLocation(snapshot[j].location);
+                        } else {
+                            // Entity interpolation enabled, send location and timestamp to buffer.
+                            const timestamp = +new Date();
+                            entity.addToLocationBuffer([timestamp, snapshot[j].location])
                         }
-                    } else this.pendingInputs = []; // No reconcilliaton so drop the saved inputs.
-                } else { // Process for other entities.
-                    
-                    if (!this.interpolation) {
-                        // No interpolation, simply set the new location.
-                        entity.setLocation(snapshot[i].location);
-                    } else {
-                        // Entity interpolation enabled, send location and timestamp to buffer.
-                        const timestamp = +new Date();
-                        entity.addToLocationBuffer([timestamp, snapshot[i].location])
                     }
                 }
             }
-
         } 
     }
 
-    inerpolateEntities() {
+    interpolateEntities() {
         // Move entities between two locations sent by the server that were stored in a buffer.
         
         const now = +new Date();
@@ -141,7 +143,7 @@ export class SnapshotClient extends GameLoop {
                 const time = (renderTimestamp - time0) / (time1 - time0);
 
                 entity.location.x = loc0.x.add(loc1.x.sub(loc0.x).mul(time));
-                entity.location.y = loc0.y.add(loc1.y.sub(loc1.y).mul(time));
+                entity.location.y = loc0.y.add(loc1.y.sub(loc0.y).mul(time));
 
                 entity.saveInterpLocation(loc0, loc1); 
             } else {
@@ -152,7 +154,7 @@ export class SnapshotClient extends GameLoop {
     }
 
     setServer(server: Proxy) {
-        this.network = server;
+        this.server = server;
     }
 
 

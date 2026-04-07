@@ -15,8 +15,8 @@ export class Entity {
 
     // Snapshot Interpolation variables
     private locBuffer: Array<[number, Point2D]> = [];
-    private loc0: Point2D | null;
-    private loc1: Point2D | null;
+    public loc0: Point2D | null;
+    public loc1: Point2D | null;
 
 
     constructor(entityID: number) {
@@ -24,7 +24,9 @@ export class Entity {
         this.location = PLAYER_SPAWN[entityID];
         this.serverLocation = this.location;
         this.color = PLAYER_COLORS[entityID];
-        this.speed = 2;
+        this.speed = 200;
+        this.loc0 = null;
+        this.loc1 = null;
     }
 
     // Move the entity up/down and left/right based on the amount of time a key has been pressed.
@@ -43,12 +45,14 @@ export class Entity {
         this.location = loc;
     }
 
-    public addToLocationBuffer(loc: Array<any>): void {
+    public addToLocationBuffer(loc: [number, Point2D]): void {
         this.locBuffer.push(loc);
     }
 
     public getBuffer(): Array<[number, Point2D]> {
-        return this.locBuffer;
+        const buffer = this.locBuffer;
+        this.locBuffer = []; // Prune the buffer.
+        return buffer;
     }
 
     public saveInterpLocation(l1: Point2D | null, l2: Point2D | null) {

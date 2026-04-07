@@ -17,9 +17,8 @@ interface RenderOptions {
 export class Render {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private interpolation: boolean = false;
     private options: RenderOptions;
-    private localID: number;
+    public localID: number;
 
     constructor(canvas: HTMLCanvasElement, options: RenderOptions = {}, localEntityID: number) {
         this.canvas = canvas;
@@ -29,10 +28,11 @@ export class Render {
     }
 
     public setInterp(set: boolean) {
-        this.interpolation = set;
+        this.options.interpolation = set;
     }
 
     public draw(oldState: GameState, newState: GameState, alpha: number): void {
+        
         if (!oldState || !newState) return;
 
         this.clear();
@@ -45,32 +45,39 @@ export class Render {
     
     private drawEntities(oldState: GameState, newState: GameState, alpha: number): void {
         Object.values(newState.entities).forEach((entity) => {
-            this.drawCircle(entity as Entity, 
-                // Translate entity positions and interpolate
-                this.interpolate(
-                    toUnsafePoint2D((oldState.entities[entity.id] as Entity).location),
-                    toUnsafePoint2D((newState.entities[entity.id] as Entity).location),
-                    alpha
+            if (this.options.interpolation && oldState.entities[entity.id]) {
+                this.drawCircle(entity.color,
+                    // Translate entity positions and interpolate
+                    this.interpolate(
+                        toUnsafePoint2D((oldState.entities[entity.id] as Entity).location),
+                        toUnsafePoint2D((newState.entities[entity.id] as Entity).location),
+                        alpha
+                    )                
                 )
-            )
+            } else {
+                this.drawCircle(entity.color, toUnsafePoint2D(entity.location))
+            }
             if (this.options.serverPositions) {
-                this.drawServerPositons(entity, toUnsafePoint2D(entity.serverLocation));
+                this.drawServerPositions(entity);
             }
         });
     }
 
-    private drawCircle(entity: Entity, {x, y}: UnsafePoint2D): void {
+    private drawCircle(color: string, {x, y}: UnsafePoint2D ): void {
         const radius = this.canvas.height * 0.9 / 2;
-        this.ctx.fillStyle = entity.color;
+        this.ctx.fillStyle = color;
         this.ctx.lineWidth = 5;
         this.ctx.beginPath();
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
         this.ctx.fill();
     }
 
-    private drawServerPositons(entity: Entity, {x, y}: UnsafePoint2D): void {
+    private drawServerPositions(entity: Entity): void {
         if (this.localID == entity.id) {
-            
+            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.serverLocation))
+        } else if (entity.loc0 && entity.loc1) {
+            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc0));
+            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc1))
         }
     }
     

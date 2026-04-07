@@ -10,9 +10,15 @@ interface Message {
     arrivalTime: number;
 }
 
+interface LockstepTick {
+    tick: number;
+    inputs: InputPacket[];
+}
+
 export type NetworkMessage = 
 | { type: 'inputPacket'; payload: InputPacket }
-| { type: 'snapshot';   payload:  Snapshot[] };
+| { type: 'snapshot';   payload:  Snapshot[] }
+| { type: 'lockstep';   payload:  LockstepTick };
 
 export class Proxy {
     private messages: Message[];   

@@ -11,8 +11,8 @@ export interface GameState {
     entities: Record<number, Entity>;
 }
 
-export class GameLoop {
-    protected playerID: number = -1;
+export abstract class GameLoop {
+    public playerID: number = -1;
     protected tickRate: number = 0;
     protected state: GameState = {entities: {}};
     protected renderer: Render;
@@ -20,20 +20,20 @@ export class GameLoop {
     protected pendingInputs: Array<InputPacket> = [];
     
     public network: Proxy = new Proxy();
-    public latency: number = 0; // MS delay in communication
+    public latency: number = 10; // MS delay in communication
 
     constructor(canvas: HTMLCanvasElement) {
-        this.renderer = new Render(canvas);
+        this.renderer = new Render(canvas, {}, this.playerID);
     }
 
     setTickRate(rate: number) {
         this.tickRate = rate;
     }
-    
-    // Lets a server assign the client with an id. Determines keybindings for this client.
-    setID(newID: number) {
-        this.playerID = newID;
-        this.localInput = new Input(this.playerID);
+
+    setID(id: number) {
+        this.playerID = id;
+        this.renderer.localID = id;
+        this.localInput = new Input(id);
     }
 
 }
