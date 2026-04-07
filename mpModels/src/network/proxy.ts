@@ -12,7 +12,7 @@ interface Message {
 
 interface LockstepTick {
     tick: number;
-    inputs: InputPacket[];
+    inputs: InputPacket;
 }
 
 export type NetworkMessage = 

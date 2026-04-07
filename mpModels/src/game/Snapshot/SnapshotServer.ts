@@ -56,8 +56,7 @@ export class SnapshotServer {
         
         if (!messages) return; // Stop the process if there are no messages.
 
-        for (let i = 0; i < messages.length; i++) {
-            const message = messages[i];
+        for (const message of messages) {
             // Make sure the message is what we're expecting and verify it looks valid.
             if (message.type === 'inputPacket' && this.validateInput(message.payload)){
                 // ADD LOGGING HERE

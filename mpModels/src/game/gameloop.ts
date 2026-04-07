@@ -15,6 +15,7 @@ export abstract class GameLoop {
     public playerID: number = -1;
     protected tickRate: number = 0;
     protected state: GameState = {entities: {}};
+    protected oldState: GameState = {entities: {}};
     protected renderer: Render;
     protected localInput!: Input;
     protected pendingInputs: Array<InputPacket> = [];
@@ -23,7 +24,7 @@ export abstract class GameLoop {
     public latency: number = 10; // MS delay in communication
 
     constructor(canvas: HTMLCanvasElement) {
-        this.renderer = new Render(canvas, {}, this.playerID);
+        this.renderer = new Render(canvas, {interpolation: false}, this.playerID);
     }
 
     setTickRate(rate: number) {

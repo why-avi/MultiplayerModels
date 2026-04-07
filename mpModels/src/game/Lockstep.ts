@@ -17,15 +17,54 @@ export class LockStep extends GameLoop {
         this.tickRate = 10;
     }
 
+    connect(peer: Proxy): void {
+        this.peers.push(peer);
+    }
+
     update(): void {
+        this.processMessages();
 
+        if (!this.sentInput) {
+            this.sendInput();
+            this.sentInput = true;
+        }
+
+
+        const inputs = this.tickInputs.get(this.tick);
+        if (inputs && inputs.length >= this.peers.length + 1) {
+            inputs.sort((a, b) => a.entityID - b.entityID);
+            inputs.forEach(input => this.state.entities[input.entityID]?.applyInput(input));
+            this.tickInputs.delete(this.tick);
+            this.tick++;
+            this.sentInput = false;
+        }
+
+        this.renderer.draw({entities: {}}, this.state, 0)
     }
 
-    sendInput(): void {
+    private sendInput(): void {
+        const input = this.localInput.getTickInput(1 / this.tickRate, this.playerID);
 
+        this.collectInput(this.tick, input);
+
+        this.peers.forEach(peer => 
+            peer.send({type: 'lockstep', payload: {tick: this.tick, inputs: input}},
+                 this.latency));
     }
 
-    processMessages(): void {
+    private processMessages(): void {
+        const messages = this.network.receive();
 
+        for (const message of messages) {
+            if (message.type === 'lockstep')
+                this.collectInput(message.payload.tick, message.payload.inputs);
+        }
     }
+
+    private collectInput(tick: number, input: InputPacket): void {
+        if (!this.tickInputs.has(tick)) this.tickInputs.set(tick, []);
+        this.tickInputs.get(tick)!.push(input);
+    }
+
+
 }

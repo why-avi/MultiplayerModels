@@ -3,6 +3,7 @@ import { SnapshotServer } from "./SnapshotServer"
 import { Input, InputPacket } from "../Input";
 import { Proxy } from "../../network/Proxy";
 import { Entity } from "../Entity";
+import { cloneDeep } from 'lodash';
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -30,6 +31,7 @@ export class SnapshotClient extends GameLoop {
 
 
     update() {
+        this.oldState = cloneDeep(this.state);
         // Process server messages
         this.processMessages();
 
@@ -43,6 +45,8 @@ export class SnapshotClient extends GameLoop {
 
         // Interpolate non-owned entities.
         if (this.interpolation) this.interpolateEntities();
+
+        this.renderer.draw(this.oldState, this.state, 1);
     }
 
     processInput() {
@@ -68,27 +72,25 @@ export class SnapshotClient extends GameLoop {
         const messages = this.network.receive();
         
         if (!messages) return; // Stop the process if ther are no messages.
-        const messageCount =  messages.length;
         
-        for (let i = 0; i < messageCount; i++) {
-            const message = messages[i];
+        for (const message of messages) {
 
             if (message.type === 'snapshot') { 
                 const snapshot = message.payload;
                 
-                for (let j = 0; j < snapshot.length; j++) {
+                for (const snapEntity of snapshot) {
                     // Add a representation of an entity if it doesn't already exist.
-                    if (!this.state.entities[snapshot[j].entityID]) {
-                        const entity = new Entity(snapshot[j].entityID);
+                    if (!this.state.entities[snapEntity.entityID]) {
+                        const entity = new Entity(snapEntity.entityID);
                         this.state.entities[entity.id] = entity;
                     }
 
-                    const entity = this.state.entities[snapshot[j].entityID];
-                    entity.setServerLocation(snapshot[j].location);
+                    const entity = this.state.entities[snapEntity.entityID];
+                    entity.setServerLocation(snapEntity.location);
 
                     if (entity.id === this.playerID) { // Process for this player's entity.
                         // Official location of this player's entity received, set.
-                        this.state.entities[this.playerID].setLocation(snapshot[j].location);
+                        this.state.entities[this.playerID].setLocation(snapEntity.location);
 
                         // Server reconciliation process.
                         // Execute all inputs that have been stored in the buffer starting from the 
@@ -96,23 +98,21 @@ export class SnapshotClient extends GameLoop {
                         if (this.reconciliation) { 
                             let k = 0;
                             // Delete all buffered inputs that the server has reported as processed.
-                            this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber > snapshot[j].lastSequenceNumber);
+                            this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber > snapEntity.lastSequenceNumber);
                             // Apply the leftover inputs.
-                            while (k < this.pendingInputs.length) {
-                                const input = this.pendingInputs[k];
+                            for (const input of this.pendingInputs) {
                                 entity.applyInput(input);
-                                k++;
                             }
                         } else this.pendingInputs = []; // No reconcilliaton so drop the saved inputs.
                     } else { // Process for other entities.
                         
                         if (!this.interpolation) {
                             // No interpolation, simply set the new location.
-                            entity.setLocation(snapshot[j].location);
+                            entity.setLocation(snapEntity.location);
                         } else {
                             // Entity interpolation enabled, send location and timestamp to buffer.
                             const timestamp = +new Date();
-                            entity.addToLocationBuffer([timestamp, snapshot[j].location])
+                            entity.addToLocationBuffer([timestamp, snapEntity.location])
                         }
                     }
                 }
