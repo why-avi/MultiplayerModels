@@ -1,6 +1,8 @@
 import { LockStep } from './src/game/Lockstep';
 import { SnapshotClient } from './src/game/Snapshot/SnapshotClient';
 import { SnapshotServer } from './src/game/Snapshot/SnapshotServer';
+import { PLAYERS } from './src/game/Constants';
+import { SettingsManager } from './src/network/Settings';
 
 const element = (id: string): HTMLCanvasElement => {
     const el = document.getElementById(id);
@@ -8,25 +10,43 @@ const element = (id: string): HTMLCanvasElement => {
     return el as HTMLCanvasElement;
 };
 
-
-const lockstep0 = new LockStep(element('lockstepCanvas0'), 0);
-const lockstep1 = new LockStep(element('lockstepCanvas1'), 1);
-
-lockstep0.connect(lockstep1.network);
-lockstep1.connect(lockstep0.network);
-
-const snapshotClient0 = new SnapshotClient(element('snapshotCanvas0'));
-const snapshotClient1 = new SnapshotClient(element('snapshotCanvas1'));
-const snapshotServer  = new SnapshotServer(element('serverCanvas'));
-
-snapshotServer.connect(snapshotClient0);
-snapshotServer.connect(snapshotClient1);
-
-function gameLoop() {
-    lockstep0.update();
-    lockstep1.update();
-    snapshotServer.update();
-    snapshotClient0.update();
-    snapshotClient1.update();
-
+interface Games {
+    Snapshot: SnapshotClient[];
+    Lockstep: LockStep[];
+    Server: SnapshotServer;
 }
+
+function init() {
+    const Games = initGames(); 
+    const settingsManager = new SettingsManager(Games.Snapshot, Games.Lockstep);
+    
+    for (const client of Games.Snapshot) {
+        Games.Server.connect(client);
+    }
+    Games.Lockstep[0].connect(Games.Lockstep[1])
+    Games.Lockstep[1].connect(Games.Lockstep[0])
+
+    // Start the Games!
+    function gameLoop() {
+        Games.Lockstep.forEach(client => client.update());
+        Games.Server.update();
+        Games.Snapshot.forEach(client => client.update());
+        requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+}
+
+function initGames(): Games {
+    return {
+        Snapshot: PLAYERS.map((_, playerID) => new SnapshotClient(element(`snapshotCanvas${playerID}`), playerID)),
+        Lockstep: PLAYERS.map((_, playerID) => new LockStep(element(`lockstepCanvas${playerID}`), playerID)),
+        Server: new SnapshotServer(element('serverCanvas'))
+    }
+}
+
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+

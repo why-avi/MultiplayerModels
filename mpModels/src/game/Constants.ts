@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { Point2D } from "./Point";
+import { Options } from "../network/Settings";
 
 export const CANVAS_WIDTH  = 800;
 export const CANVAS_HEIGHT = 80;
@@ -11,19 +12,23 @@ export const PLAYER_SPAWN: Record<number, Point2D> = {
     1: { x: new Decimal(CANVAS_WIDTH * 0.75), y: new Decimal(CANVAS_HEIGHT / 2) },
 };
 
-export const DEFAULT_SETTINGS = {
-    global: {
+export const DEFAULT_SETTINGS: Options = {
+    global: { 
         tickRate: 15,
-        commandDelay: 2
-    },
+        lossRate: 0.0
+     },
     snapshot: PLAYERS.map(() => ({
-        prediction: false,
-        interpolation: false,
-        reconciliation: false,
-        serverPositions: false,
-    })),
-    player: PLAYERS.map(() => ({
         latency: 30,
-        packetLoss: 0.0
+        lossRate: 0,
+        options: {
+            prediction: false,
+            reconciliation: false,
+            interpolation: false,
+            serverPositions: false
+        }    
+    })),
+    lockstep: PLAYERS.map(() => ({
+        latency: 30,
+        lossRate: 0.0
     })),
 }

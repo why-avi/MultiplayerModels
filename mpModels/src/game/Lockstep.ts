@@ -1,6 +1,7 @@
 import { GameLoop } from "./GameLoop"
 import { Proxy } from "../network/Proxy";
 import { InputPacket } from "./Input";
+import { Entity } from "./Entity";
 /**
  * Extension of the gameloop class for LockStep Synchronization.
  * Requires command processing and acks from each client before proceeding.
@@ -13,14 +14,16 @@ export class LockStep extends GameLoop {
     private tickInputs: Map<number, InputPacket[]> = new Map();
 
     constructor(canvas: HTMLCanvasElement, id: number) {
-        super(canvas)
-        this.tickRate = 10;
-        this.setID(id);
+        super(canvas, id)
+        this.state.entities[this.playerID] = new Entity(this.playerID)
     }
 
-    connect(peer: Proxy): void {
-        this.peers.push(peer);
-
+    public connect(peer: LockStep): void {
+        this.peers.push(peer.network);
+        if (!this.state.entities[peer.playerID]){
+            const entity = new Entity(peer.playerID);
+            this.state.entities[peer.playerID] = entity;
+        }
     }
 
     update(): void {
@@ -30,7 +33,6 @@ export class LockStep extends GameLoop {
             this.sendInput();
             this.sentInput = true;
         }
-
 
         const inputs = this.tickInputs.get(this.tick);
         if (inputs && inputs.length >= this.peers.length + 1) {

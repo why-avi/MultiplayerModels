@@ -4,7 +4,7 @@ import { Input, InputPacket } from "../Input";
 import { Proxy } from "../../network/Proxy";
 import { Entity } from "../Entity";
 import { cloneDeep } from 'lodash';
-
+import { SnapshotOptions } from "../../network/Settings";
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -18,21 +18,17 @@ export class SnapshotClient extends GameLoop {
     public server!: Proxy;
 
     // Optional Snapshot settings
-    private prediction: boolean = false;
-    private reconciliation: boolean = false;
-    private interpolation: boolean = false;
-    private serverPositions: boolean = false;
+    public options: SnapshotOptions;
 
     // Optional Snapshot settings required variables
     private inputSequence: number = 0;
 
-    constructor(canvas: HTMLCanvasElement){
-        super(canvas);
-
+    constructor(canvas: HTMLCanvasElement, id: number){
+        super(canvas, id);
+        this.options = {}
     }
 
-
-    update() {
+    public update(): void {
         this.oldState = cloneDeep(this.state);
         // Process server messages
         this.processMessages();
@@ -46,12 +42,12 @@ export class SnapshotClient extends GameLoop {
         this.processInput();
 
         // Interpolate non-owned entities.
-        if (this.interpolation) this.interpolateEntities();
+        if (this.options.interpolation) this.interpolateEntities();
 
         this.renderer.draw(this.oldState, this.state, 1);
     }
 
-    processInput() {
+    private processInput(): void {
         const timestamp_now = +new Date();
         const timestamp_last = this.timestamp_last || timestamp_now;
         const timestamp_delta = (timestamp_now - timestamp_last) / 1000.0;
@@ -63,7 +59,7 @@ export class SnapshotClient extends GameLoop {
         // Send input to server and iterate sequence.
         this.server.send({type: 'inputPacket', payload: input}, this.latency);
         // Client-side prediction
-        if (this.prediction) this.state.entities[this.playerID].applyInput(input);
+        if (this.options.prediction) this.state.entities[this.playerID].applyInput(input);
 
         // Save input for reconciliation.
         this.pendingInputs.push(input);
@@ -97,7 +93,7 @@ export class SnapshotClient extends GameLoop {
                         // Server reconciliation process.
                         // Execute all inputs that have been stored in the buffer starting from the 
                         //  last input the server has processed.
-                        if (this.reconciliation) { 
+                        if (this.options.reconciliation) { 
                             let k = 0;
                             // Delete all buffered inputs that the server has reported as processed.
                             this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber > snapEntity.lastSequenceNumber);
@@ -108,7 +104,7 @@ export class SnapshotClient extends GameLoop {
                         } else this.pendingInputs = []; // No reconcilliaton so drop the saved inputs.
                     } else { // Process for other entities.
                         
-                        if (!this.interpolation) {
+                        if (!this.options.interpolation) {
                             // No interpolation, simply set the new location.
                             entity.setLocation(snapEntity.location);
                         } else {
@@ -124,7 +120,6 @@ export class SnapshotClient extends GameLoop {
 
     interpolateEntities() {
         // Move entities between two locations sent by the server that were stored in a buffer.
-        
         const now = +new Date();
         const renderTimestamp = now - (1000.0 / this.tickRate);
 

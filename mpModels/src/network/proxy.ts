@@ -22,15 +22,14 @@ export type NetworkMessage =
 
 export class Proxy {
     private messages: Message[];   
-    private lossRate: number; // Number between 0 and 1 representing percent of dropped packets.
+    public lossRate: number = 0; // Number between 0 and 1 representing percent of dropped packets.
 
     constructor() {
         this.messages = [];
-        this.lossRate = 0; // Default to no lost packets.
     }
 
     // Takes a message from an authoritative server or fellow client and store in a queue.
-    send(message: NetworkMessage, latency: number) {
+    public send(message: NetworkMessage, latency: number): void {
         // Exits process if this packet is "lost"
         if (Math.random() < this.lossRate) return;
         this.messages.push({
@@ -40,7 +39,7 @@ export class Proxy {
     }
 
     // Return latest messages that have "arrived"
-    receive() {
+    public receive(): Array<NetworkMessage> {
         const now = +new Date();
         const arrived = this.messages.filter(message => message.arrivalTime <= now);
         this.messages = this.messages.filter(message => message.arrivalTime > now);
@@ -48,7 +47,7 @@ export class Proxy {
     }
 
     // Change the packet loss rate setting.
-    setLossRate(rate: number) {
+    public setLossRate(rate: number): void {
         this.lossRate = rate;
     }
 }

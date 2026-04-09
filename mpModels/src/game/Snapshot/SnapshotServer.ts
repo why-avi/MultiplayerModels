@@ -6,6 +6,7 @@ import { SnapshotClient } from "./SnapshotClient";
 import { InputPacket } from "../Input";
 import { Point2D } from "../Point";
 import { NetworkMessage } from "../../network/Proxy";
+import { DEFAULT_SETTINGS } from "../Constants";
 
 export interface Snapshot {
     entityID: number;
@@ -15,7 +16,7 @@ export interface Snapshot {
 
 export class SnapshotServer {
     private clients: Array<SnapshotClient> = [];
-    private tickRate: number = 10;
+    private tickRate: number = DEFAULT_SETTINGS.global.tickRate;
     private state: GameState = {entities: {}};
     private renderer: Render;
     private lastSequenceNumber: Record<number, number> = {};
@@ -27,30 +28,29 @@ export class SnapshotServer {
     }
  
     // Connect a client to this server.
-    connect(client: SnapshotClient) {
-        const clientID = this.clients.length;
-        client.setID(clientID)
-        client.setServer(this.network);
-        client.setTickRate(this.tickRate);
-        this.clients.push(client);
+    public connect(client: SnapshotClient): void {
+        if (this.clients[client.playerID]) return;
 
+        client.setServer(this.network);
+        this.clients.push(client);
+        
         // Create a new entity with the same ID as the connected client.
-        const entity = new Entity(clientID);
-        this.state.entities[clientID] = entity;
+        const entity = new Entity(client.playerID);
+        this.state.entities[client.playerID] = entity;
     }
 
-    setTickRate(rate: number) {
+    public setTickRate(rate: number): void {
         this.tickRate = rate;
     }
 
-    update() {
+    public update(): void {
         this.processMessages();
         this.sendGameState();
         this.renderer.draw({entities: {}}, this.state, 0);
     }
 
     // Process inputs sent from the clients
-    processMessages() {
+    private processMessages(): void {
         // Get the messages in the buffer.
         const messages = this.network.receive();
         
@@ -68,13 +68,13 @@ export class SnapshotServer {
     }
 
     // Validate input
-    validateInput(input: InputPacket) {
+    private validateInput(input: InputPacket): boolean {
         if (Math.abs(input.pressTime) > 2 / this.tickRate) return false;
         return true;
     }
     
     // Send game state to clients
-    sendGameState(){
+    private sendGameState(): void {
         // Create an array holding the state of each entity to send
         let snapshot: Snapshot[] = [];
 
