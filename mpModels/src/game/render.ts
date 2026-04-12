@@ -37,6 +37,14 @@ export class Render {
     }
     
     private drawEntities(oldState: GameState, newState: GameState, alpha: number): void {
+        if (this.options.serverPositions) {
+            Object.values(newState.entities).forEach((entity) => {
+                this.drawServerPositions(entity);
+            })
+        } else {
+            
+        }
+
         Object.values(newState.entities).forEach((entity) => {
             if (this.options.interpolation && oldState.entities[entity.id]) {
                 this.drawCircle(entity.color,
@@ -50,21 +58,18 @@ export class Render {
             } else {
                 this.drawCircle(entity.color, toUnsafePoint2D(entity.location))
             }
-            if (this.options.serverPositions) {
-                this.drawServerPositions(entity);
-            }
         });
     }
 
     private drawCircle(color: string, {x, y}: UnsafePoint2D ): void {
-        const radius = this.canvas.height * 0.9 / 2;
+        const radius = this.canvas.height * 0.2;
         this.ctx.fillStyle = color;
         this.ctx.lineWidth = 5;
         this.ctx.beginPath();
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
         this.ctx.fill();
         if (color != 'rgba(0, 0, 0, 0.2)') {
-            this.ctx.lineWidth = 5;
+            this.ctx.lineWidth = 2;
             this.ctx.strokeStyle = "black"
             this.ctx.stroke();
         }

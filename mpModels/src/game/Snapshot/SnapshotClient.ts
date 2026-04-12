@@ -1,10 +1,8 @@
 import { GameLoop } from "../GameLoop";
-import { SnapshotServer } from "./SnapshotServer"
-import { Input, InputPacket } from "../Input";
 import { Proxy } from "../../network/Proxy";
 import { Entity } from "../Entity";
 import { cloneDeep } from 'lodash';
-import { Options, SnapshotOptions } from "../../network/Settings";
+import { SnapshotOptions } from "../../network/Settings";
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -20,8 +18,6 @@ export class SnapshotClient extends GameLoop {
     // Optional Snapshot settings
     public options: SnapshotOptions;
 
-    // Optional Snapshot settings required variables
-    private inputSequence: number = 0;
 
     constructor(canvas: HTMLCanvasElement, id: number){
         super(canvas, id);
@@ -50,7 +46,7 @@ export class SnapshotClient extends GameLoop {
     private processInput(): void {
         const timestamp_now = +new Date();
         const timestamp_last = this.timestamp_last || timestamp_now;
-        const timestamp_delta = (timestamp_now - timestamp_last) / 1000.0;
+        const timestamp_delta = (timestamp_now - timestamp_last) / (1000.0 / this.tickRate);
         this.timestamp_last = timestamp_now;
 
         // Record input with current delta time.
@@ -93,8 +89,7 @@ export class SnapshotClient extends GameLoop {
                         // Server reconciliation process.
                         // Execute all inputs that have been stored in the buffer starting from the 
                         //  last input the server has processed.
-                        if (this.options.reconciliation) { 
-                            let k = 0;
+                        if (this.options.reconciliation && this.options.prediction) { 
                             // Delete all buffered inputs that the server has reported as processed.
                             this.pendingInputs = this.pendingInputs.filter(input => input.sequenceNumber > snapEntity.lastSequenceNumber);
                             // Apply the leftover inputs.
@@ -106,11 +101,11 @@ export class SnapshotClient extends GameLoop {
                         
                         if (!this.options.interpolation) {
                             // No interpolation, simply set the new location.
-                            entity.setLocation(snapEntity.location);
+                            entity.setLocation(cloneDeep(snapEntity.location));
                         } else {
                             // Entity interpolation enabled, send location and timestamp to buffer.
                             const timestamp = +new Date();
-                            entity.addToLocationBuffer([timestamp, snapEntity.location])
+                            entity.addToLocationBuffer([timestamp, cloneDeep(snapEntity.location)])
                         }
                     }
                 }

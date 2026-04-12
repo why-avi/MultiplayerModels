@@ -1,6 +1,6 @@
 import { Point2D } from './Point';
 import { InputPacket } from './Input';
-import { PLAYERS, PLAYER_SPAWN } from './Constants';
+import { PLAYERS, PLAYER_SPAWN, CANVAS_WIDTH, CANVAS_HEIGHT } from './Constants';
 import { cloneDeep } from 'lodash';
 // Player entity class containing loocation and applies movement.
 
@@ -24,17 +24,17 @@ export class Entity {
         this.location = cloneDeep(PLAYER_SPAWN[entityID]);
         this.serverLocation = cloneDeep(PLAYER_SPAWN[entityID]);
         this.color = PLAYERS[entityID];
-        this.speed = 100;
+        this.speed = 15;
         this.loc0 = null;
         this.loc1 = null;
     }
 
     // Move the entity up/down and left/right based on the amount of time a key has been pressed.
     public applyInput(input: InputPacket): void {
-        if (input.up)    this.location.y = this.location.y.sub(this.speed * input.pressTime);
-        if (input.down)  this.location.y = this.location.y.add(this.speed * input.pressTime);
-        if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime);
-        if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime);
+        if (input.up)    this.location.y = this.location.y.sub(this.speed * input.pressTime).clampedTo(0, CANVAS_HEIGHT);
+        if (input.down)  this.location.y = this.location.y.add(this.speed * input.pressTime).clampedTo(0, CANVAS_HEIGHT);
+        if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime).clampedTo(0, CANVAS_WIDTH);
+        if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime).clampedTo(0, CANVAS_WIDTH);
     }
 
     public setServerLocation(loc: Point2D): void {

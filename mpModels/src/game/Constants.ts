@@ -2,8 +2,8 @@ import Decimal from "decimal.js";
 import { Point2D } from "./Point";
 import { Options } from "../network/Settings";
 
-export const CANVAS_WIDTH  = 800;
-export const CANVAS_HEIGHT = 80;
+export const CANVAS_WIDTH  = 300;
+export const CANVAS_HEIGHT = 70;
 
 export const PLAYERS: Array<string> = ["#F17720", "#00A7E1"];
 
@@ -14,7 +14,7 @@ export const PLAYER_SPAWN: Record<number, Point2D> = {
 
 export const DEFAULT_SETTINGS: Options = {
     global: { 
-        tickRate: 15,
+        tickRate: 2,
         lossRate: 0.0
      },
     snapshot: PLAYERS.map(() => ({

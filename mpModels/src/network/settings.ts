@@ -85,15 +85,35 @@ export class SettingsManager {
                 this.lockstepClients[i].latency = value;
                 this.options.lockstep[i].latency = value;
             });
+            this.onNumber(`ls${i}lossRate`, (value: number) => {
+                this.lockstepClients[i].network.setLossRate(value);
+                this.options.lockstep[i].lossRate = value;
+            });
             this.onNumber(`ss${i}latency`, (value: number) => {
                 this.snapshotClients[i].latency = value;
                 this.options.snapshot[i].latency = value;
-            });    
+            });
+            this.onNumber(`ss${i}lossRate`, (value: number) => {
+                this.snapshotClients[i].network.setLossRate(value);
+                this.options.snapshot[i].lossRate = value;
+            });
             
             Object.keys(this.options.snapshot[i].options).forEach(option => {
                 this.onCheck(`ss${i}${option}`, (value) => {
                     this.snapshotClients[i].options[option as keyof SnapshotOptions] = value;
                     this.options.snapshot[i].options[option as keyof SnapshotOptions] = value;
+
+                    if (option === "reconciliation" && value === true) {
+                        this.uiElements.snapshot[i].prediction.checked = true;
+                        this.snapshotClients[i].options.prediction = true;
+                        this.options.snapshot[i].options.prediction = true;
+                    }
+
+                    if (option === "prediction" && value === false && this.options.snapshot[i].options.reconciliation === true) {
+                        this.uiElements.snapshot[i].reconciliation.checked = false;
+                        this.snapshotClients[i].options.reconciliation = false;
+                        this.options.snapshot[i].options.reconciliation = false;
+                    }
                 });
             })
         }
@@ -102,9 +122,11 @@ export class SettingsManager {
     private toUI(): void {
         this.options.lockstep.forEach((saved, i) => {
             this.uiElements.lockstep[i].latency.value = saved.latency.toString();
+            this.uiElements.lockstep[i].lossRate.value = saved.lossRate.toString();
         });
         this.options.snapshot.forEach((saved, i) => {
             this.uiElements.snapshot[i].latency.value = saved.latency.toString();
+            this.uiElements.snapshot[i].lossRate.value = saved.lossRate.toString();
             (Object.keys(saved.options) as (keyof SnapshotOptions)[]).forEach(option => {
                 this.uiElements.snapshot[i][option].checked = saved.options[option] ?? false;
             });
@@ -126,7 +148,11 @@ export class SettingsManager {
 
     private onNumber(name: string, apply: (value: number) => void): void {
         const element = document.getElementById(name) as HTMLInputElement;
-        element.addEventListener('input', () => { apply(parseInt(element.value)); this.save();})
+        element.addEventListener('input', () => {
+            const val = parseFloat(element.value);
+            apply(isNaN(val) ? 0 : val);
+            this.save();
+        })
     }
 
     private onCheck(name: string, apply: (value: boolean) => void): void {

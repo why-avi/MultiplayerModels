@@ -31,7 +31,7 @@ export class Proxy {
     // Takes a message from an authoritative server or fellow client and store in a queue.
     public send(message: NetworkMessage, latency: number): void {
         // Exits process if this packet is "lost"
-        if (Math.random() < this.lossRate) return;
+        if (Math.random() < this.lossRate / 100) return;
         this.messages.push({
             payload: message,
             arrivalTime: +new Date() + latency,

@@ -12,6 +12,7 @@ export class LockStep extends GameLoop {
     private tick: number = 0;
     private sentInput: boolean = false;
     private tickInputs: Map<number, InputPacket[]> = new Map();
+    private lastTickTime: number = 0;
 
     constructor(canvas: HTMLCanvasElement, id: number) {
         super(canvas, id)
@@ -34,13 +35,15 @@ export class LockStep extends GameLoop {
             this.sentInput = true;
         }
 
+        const now = +new Date();
         const inputs = this.tickInputs.get(this.tick);
-        if (inputs && inputs.length >= this.peers.length + 1) {
+        if (inputs && inputs.length >= this.peers.length + 1 && now - this.lastTickTime >= 1000 / this.tickRate) {
             inputs.sort((a, b) => a.entityID - b.entityID);
             inputs.forEach(input => this.state.entities[input.entityID]?.applyInput(input));
             this.tickInputs.delete(this.tick);
             this.tick++;
             this.sentInput = false;
+            this.lastTickTime = now;
         }
 
         this.renderer.draw({entities: {}}, this.state, 0)

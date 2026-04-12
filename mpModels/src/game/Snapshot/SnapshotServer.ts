@@ -21,6 +21,7 @@ export class SnapshotServer {
     private state: GameState = {entities: {}};
     private renderer: Render;
     private lastSequenceNumber: Record<number, number> = {};
+    private lastSend: number = 0;
     
     public network: Proxy = new Proxy();
 
@@ -46,7 +47,12 @@ export class SnapshotServer {
 
     public update(): void {
         this.processMessages();
-        this.sendGameState();
+
+        const now = +new Date();
+        if (now - this.lastSend >= 1000 / this.tickRate) {
+            this.sendGameState();
+            this.lastSend = now;
+        }
         this.renderer.draw({entities: {}}, this.state, 0);
     }
 
