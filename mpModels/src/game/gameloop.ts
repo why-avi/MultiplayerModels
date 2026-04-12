@@ -29,13 +29,7 @@ export abstract class GameLoop {
     constructor(canvas: HTMLCanvasElement, id: number) {
         this.playerID = id;
         this.renderer = new Render(canvas, {interpolation: false}, this.playerID);
+        this.localInput = new Input(id);
         this.network = new Proxy();
     }
-
-    setID(id: number) {
-        this.playerID = id;
-        this.renderer.localID = id;
-        this.localInput = new Input(id);
-    }
-
 }

@@ -9,7 +9,7 @@
   <body>
     <div class="main">
       <div class="head">
-        <h1 class="title" id>Multiplayer Synchronization Methods Live Demo</h1>
+        <h1 class="title">Multiplayer Synchronization Methods Live Demo</h1>
       </div>
 
       <div class="sim-container">
@@ -19,8 +19,8 @@
           </div>
 
           <div class="snapshot-div" id="player1">
-            <p>Player 1 View - Controls: left and right arrow keys.</p>
-            <div class="settings">Latency: <input id="ss0latency" type="text"> <input id="ss0prediction" type="checkbox"> Prediction <input id="ss0reconciliation" type="checkbox"> Reconciliation <input id="ss0interpolation" type="checkbox"> Interpolation <input id="ss0serverPositions"> Show server positions </div>
+            <p>Player 1 View - Controls: A and D keys.</p>
+            <div class="settings">Latency: <input id="ss0latency" type="text"> <input id="ss0prediction" type="checkbox"> Prediction <input id="ss0reconciliation" type="checkbox"> Reconciliation <input id="ss0interpolation" type="checkbox"> Interpolation <input id="ss0serverPositions" type="checkbox"> Show server positions </div>
             <canvas id="snapshotCanvas0" width="800" height="80"></canvas>
           </div>
 
@@ -30,8 +30,8 @@
           </div>
           
           <div class="snapshot-div" id="player2">
-            <p>Player 2 View - Controls: A and D keys</p>
-            <div class="settings">Latency: <input id="ss1latency" type="text"> <input id="ss1prediction" type="checkbox"> Prediction <input id="ss1reconciliation" type="checkbox"> Reconciliation <input id="ss1interpolation" type="checkbox"> Interpolation <input id="ss1serverPositions"> Show server positions </div>
+            <p>Player 2 View - Controls: left and right arrow keys.</p>
+            <div class="settings">Latency: <input id="ss1latency" type="text"> <input id="ss1prediction" type="checkbox"> Prediction <input id="ss1reconciliation" type="checkbox"> Reconciliation <input id="ss1interpolation" type="checkbox"> Interpolation <input id="ss1serverPositions" type="checkbox"> Show server positions </div>
             <canvas id="snapshotCanvas1" width="800" height="80"></canvas>
           </div>
 
@@ -42,15 +42,15 @@
             <h2>Lockstep (P2P)</h2>
           </div>
 
-          <div class="lockstep-div" id="player1">
+          <div class="lockstep-div" id="ls-player1">
             <p>Player 1 View - Controls: left and right arrow keys.</p>
-            <div class="settings">Latency: <input id="ls0latency" type="text"> <input id="ls0prediction" type="checkbox"> Prediction <input id="ls0reconciliation" type="checkbox"> Reconciliation <input id="ls0interpolation" type="checkbox"> Interpolation <input id="ls0serverPositions"> Show server positions </div>
+            <div class="settings">Latency: <input id="ls0latency" type="text"> </div>
             <canvas id="lockstepCanvas0" width="800" height="80"></canvas>
           </div>
 
-          <div class="lockstep-div" id="player2">
+          <div class="lockstep-div" id="ls-player2">
             <p>Player 2 View - Controls: left and right arrow keys.</p>
-            <div class="settings">Latency: <input id="ls0latency" type="text"> <input id="ls0prediction" type="checkbox"> Prediction <input id="ls0reconciliation" type="checkbox"> Reconciliation <input id="ls0interpolation" type="checkbox"> Interpolation <input id="ls0serverPositions"> Show server positions </div>
+            <div class="settings">Latency: <input id="ls1latency" type="text"> </div>
             <canvas id="lockstepCanvas1" width="800" height="80"></canvas>
           </div>
         </div>
@@ -61,5 +61,6 @@
       </div>
 
     </div>
+    <script type="module" src="./Main.ts"></script>
   </body>
 </html>

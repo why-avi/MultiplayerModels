@@ -55,10 +55,13 @@ export class SettingsManager {
     public options: Options;
 
     constructor(ss: SnapshotClient[], ls: LockStep[]) {
+        this.snapshotClients = ss;
+        this.lockstepClients = ls;
         this.options = this.loadFromStorage() || DEFAULT_SETTINGS;
         this.save()
         this.initUI();
         this.toUI();
+        this.applyToGames();
     }
 
     private initUI(): void { 
@@ -108,15 +111,16 @@ export class SettingsManager {
         });
     }
 
-    private apply(): void {
+    private applyToGames(): void {
         this.options.lockstep.forEach((saved, i) => {
             this.lockstepClients[i].latency = saved.latency;
-            this.snapshotClients[i].network.setLossRate(saved.lossRate);
+            this.lockstepClients[i].network.setLossRate(saved.lossRate);
         });
         this.options.snapshot.forEach((saved, i) => {
             this.snapshotClients[i].latency = saved.latency;
             this.snapshotClients[i].network.setLossRate(saved.lossRate);
             this.snapshotClients[i].options = {...saved.options};
+            this.snapshotClients[i].setRenderOptions(saved.options);
         });
     }
 

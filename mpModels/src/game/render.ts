@@ -1,3 +1,4 @@
+import { SnapshotOptions } from '../network/Settings.js';
 import { Entity } from './Entity.js';
 import { GameState } from './GameLoop.js';
 import { toUnsafePoint2D, UnsafePoint2D } from './Point.js';
@@ -9,30 +10,18 @@ import { toUnsafePoint2D, UnsafePoint2D } from './Point.js';
  */
 
 
-interface RenderOptions {
-    interpolation?: boolean;
-    serverPositions?: boolean;
-}
 
 export class Render {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private options: RenderOptions;
+    public options: SnapshotOptions;
     public localID: number;
 
-    constructor(canvas: HTMLCanvasElement, options: RenderOptions = {}, localEntityID: number) {
+    constructor(canvas: HTMLCanvasElement, options: SnapshotOptions = {}, localEntityID: number) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.options = options;
         this.localID = localEntityID;
-    }
-
-    public setInterp(set: boolean) {
-        this.options.interpolation = set;
-    }
-
-    public setServerPositions(set: boolean) {
-        this.options.serverPositions = set;
     }
 
     public draw(oldState: GameState, newState: GameState, alpha: number): void {
@@ -74,7 +63,7 @@ export class Render {
         this.ctx.beginPath();
         this.ctx.arc(x, y, radius, 0, Math.PI * 2);
         this.ctx.fill();
-        if (color != 'rgba(0, 0, 0, 0.2') {
+        if (color != 'rgba(0, 0, 0, 0.2)') {
             this.ctx.lineWidth = 5;
             this.ctx.strokeStyle = "black"
             this.ctx.stroke();

@@ -1,6 +1,7 @@
 import { Point2D } from './Point';
 import { InputPacket } from './Input';
 import { PLAYERS, PLAYER_SPAWN } from './Constants';
+import { cloneDeep } from 'lodash';
 // Player entity class containing loocation and applies movement.
 
 export class Entity {
@@ -20,8 +21,8 @@ export class Entity {
 
     constructor(entityID: number) {
         this.id = entityID;
-        this.location = PLAYER_SPAWN[entityID];
-        this.serverLocation = this.location;
+        this.location = cloneDeep(PLAYER_SPAWN[entityID]);
+        this.serverLocation = cloneDeep(PLAYER_SPAWN[entityID]);
         this.color = PLAYERS[entityID];
         this.speed = 100;
         this.loc0 = null;
@@ -30,8 +31,8 @@ export class Entity {
 
     // Move the entity up/down and left/right based on the amount of time a key has been pressed.
     public applyInput(input: InputPacket): void {
-        if (input.up)    this.location.y = this.location.y.add(this.speed * input.pressTime);
-        if (input.down)  this.location.y = this.location.y.sub(this.speed * input.pressTime);
+        if (input.up)    this.location.y = this.location.y.sub(this.speed * input.pressTime);
+        if (input.down)  this.location.y = this.location.y.add(this.speed * input.pressTime);
         if (input.right) this.location.x = this.location.x.add(this.speed * input.pressTime);
         if (input.left)  this.location.x = this.location.x.sub(this.speed * input.pressTime);
     }
@@ -50,7 +51,6 @@ export class Entity {
 
     public getBuffer(): Array<[number, Point2D]> {
         const buffer = this.locBuffer;
-        this.locBuffer = []; // Prune the buffer.
         return buffer;
     }
 

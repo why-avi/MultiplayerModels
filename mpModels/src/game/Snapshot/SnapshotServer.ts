@@ -7,6 +7,7 @@ import { InputPacket } from "../Input";
 import { Point2D } from "../Point";
 import { NetworkMessage } from "../../network/Proxy";
 import { DEFAULT_SETTINGS } from "../Constants";
+import { cloneDeep } from "lodash";
 
 export interface Snapshot {
     entityID: number;
@@ -81,7 +82,7 @@ export class SnapshotServer {
         Object.values(this.state.entities).forEach((entity) => {
             snapshot.push({
                 entityID: entity.id,
-                location: entity.location,
+                location: cloneDeep(entity.location),
                 lastSequenceNumber: this.lastSequenceNumber[entity.id]
             });
         })

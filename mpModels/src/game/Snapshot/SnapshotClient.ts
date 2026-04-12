@@ -4,7 +4,7 @@ import { Input, InputPacket } from "../Input";
 import { Proxy } from "../../network/Proxy";
 import { Entity } from "../Entity";
 import { cloneDeep } from 'lodash';
-import { SnapshotOptions } from "../../network/Settings";
+import { Options, SnapshotOptions } from "../../network/Settings";
 /** 
  * Extension of gameloop class for snapshot synchronization.
  * Clients update entitiy positions according to the authoritative server. Inputs are applied
@@ -59,13 +59,13 @@ export class SnapshotClient extends GameLoop {
         // Send input to server and iterate sequence.
         this.server.send({type: 'inputPacket', payload: input}, this.latency);
         // Client-side prediction
-        if (this.options.prediction) this.state.entities[this.playerID].applyInput(input);
+        if (this.options.prediction && this.state.entities[this.playerID]) this.state.entities[this.playerID].applyInput(input);
 
         // Save input for reconciliation.
         this.pendingInputs.push(input);
     }
     
-    processMessages() {
+    private processMessages(): void {
         // Loop through entities sent by server and apply their location to local entities.
         const messages = this.network.receive();
         
@@ -84,11 +84,11 @@ export class SnapshotClient extends GameLoop {
                     }
 
                     const entity = this.state.entities[snapEntity.entityID];
-                    entity.setServerLocation(snapEntity.location);
+                    entity.setServerLocation(cloneDeep(snapEntity.location));
 
                     if (entity.id === this.playerID) { // Process for this player's entity.
                         // Official location of this player's entity received, set.
-                        this.state.entities[this.playerID].setLocation(snapEntity.location);
+                        this.state.entities[this.playerID].setLocation(cloneDeep(snapEntity.location));
 
                         // Server reconciliation process.
                         // Execute all inputs that have been stored in the buffer starting from the 
@@ -118,7 +118,7 @@ export class SnapshotClient extends GameLoop {
         } 
     }
 
-    interpolateEntities() {
+    private interpolateEntities(): void {
         // Move entities between two locations sent by the server that were stored in a buffer.
         const now = +new Date();
         const renderTimestamp = now - (1000.0 / this.tickRate);
@@ -130,6 +130,8 @@ export class SnapshotClient extends GameLoop {
             if (entity.id == this.playerID) continue;
 
             const buffer = entity.getBuffer();
+
+            while (buffer.length > 2 && buffer[1][0] <= renderTimestamp) buffer.shift();
 
             if (buffer.length >= 2 && buffer[0][0] <= renderTimestamp && renderTimestamp <= buffer[1][0]) {
                 const time0 = buffer[0][0];
@@ -150,9 +152,11 @@ export class SnapshotClient extends GameLoop {
         }
     }
 
-    setServer(server: Proxy) {
+    public setServer(server: Proxy): void {
         this.server = server;
     }
 
-
+    public setRenderOptions(options: SnapshotOptions) {
+        this.renderer.options = {...options};
+    }
 }
