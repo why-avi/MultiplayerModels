@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mpmodels</title>
+    <script type="module" crossorigin src="/assets/index-DTvrJuLB.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CStwPBok.css">
+  </head>
+  <body>
+    <div class="main">
+      <div class="head">
+        <h1 class="title">Multiplayer Synchronization Methods Live Demo</h1>
+      </div>
+
+      <div class="sim-container">
+
+        <div class="sim-panel">
+          <h2 class="panel-title">Snapshot (Client/Server)</h2>
+
+          <div class="player-view">
+            <p class="view-label">Player 1 — Controls: A and D</p>
+            <div class="settings">
+              <span>Latency: <input id="ss0latency" type="number" min="0"></span>
+              <span>Loss rate: <input id="ss0lossRate" type="number" min="0" max="1" step="0.01"></span>
+              <label><input id="ss0prediction" type="checkbox"> Prediction</label>
+              <label><input id="ss0reconciliation" type="checkbox"> Reconciliation</label>
+              <label><input id="ss0interpolation" type="checkbox"> Interpolation</label>
+              <label><input id="ss0serverPositions" type="checkbox"> Server Positions</label>
+            </div>
+            <canvas id="snapshotCanvas0" width="300" height="70"></canvas>
+          </div>
+
+          <div class="server-view">
+            <p class="server-label">Server</p>
+            <canvas id="serverCanvas" width="300" height="70"></canvas>
+          </div>
+
+          <div class="player-view">
+            <p class="view-label">Player 2 — Controls: Arrow Keys</p>
+            <div class="settings">
+              <span>Latency: <input id="ss1latency" type="number" min="0"></span>
+              <span>Loss rate: <input id="ss1lossRate" type="number" min="0" max="1" step="0.01"></span>
+              <label><input id="ss1prediction" type="checkbox"> Prediction</label>
+              <label><input id="ss1reconciliation" type="checkbox"> Reconciliation</label>
+              <label><input id="ss1interpolation" type="checkbox"> Interpolation</label>
+              <label><input id="ss1serverPositions" type="checkbox"> Server Positions</label>
+            </div>
+            <canvas id="snapshotCanvas1" width="300" height="70"></canvas>
+          </div>
+        </div>
+
+        <div class="sim-panel">
+          <h2 class="panel-title">Lockstep</h2>
+
+          <div class="player-view">
+            <p class="view-label">Player 1 — Controls: A and D</p>
+            <div class="settings">
+              <span>Latency: <input id="ls0latency" type="number" min="0"></span>
+              <span>Loss rate: <input id="ls0lossRate" type="number" min="0" max="1" step="0.01"></span>
+            </div>
+            <canvas id="lockstepCanvas0" width="300" height="70"></canvas>
+          </div>
+
+          <div class="player-view">
+            <p class="view-label">Player 2 — Controls: Arrow Keys</p>
+            <div class="settings">
+              <span>Latency: <input id="ls1latency" type="number" min="0"></span>
+              <span>Loss rate: <input id="ls1lossRate" type="number" min="0" max="1" step="0.01"></span>
+            </div>
+            <canvas id="lockstepCanvas1" width="300" height="70"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="article">
+        <h1>Article</h1>
+      </div>
+    </div>
+  </body>
+</html>
