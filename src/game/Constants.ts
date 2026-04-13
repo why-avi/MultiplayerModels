@@ -14,7 +14,7 @@ export const PLAYER_SPAWN: Record<number, Point2D> = {
 
 export const DEFAULT_SETTINGS: Options = {
     global: { 
-        tickRate: 2,
+        tickRate: 15,
         lossRate: 0.0
      },
     snapshot: PLAYERS.map(() => ({

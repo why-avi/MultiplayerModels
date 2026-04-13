@@ -24,7 +24,7 @@ export class Entity {
         this.location = cloneDeep(PLAYER_SPAWN[entityID]);
         this.serverLocation = cloneDeep(PLAYER_SPAWN[entityID]);
         this.color = PLAYERS[entityID];
-        this.speed = 15;
+        this.speed = 3;
         this.loc0 = null;
         this.loc1 = null;
     }
