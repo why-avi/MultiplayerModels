@@ -1,16 +1,8 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Deploy static content to Pages
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 permissions:
@@ -18,14 +10,11 @@ permissions:
   pages: write
   id-token: write
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-# Allow one concurrent deployment
 concurrency:
   group: 'pages'
   cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -33,9 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
@@ -44,12 +33,11 @@ jobs:
       - name: Build
         run: npm run build
       - name: Setup Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@v5
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          # Upload dist folder
           path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
