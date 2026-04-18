@@ -9,8 +9,7 @@ export class Entity {
     public location: Point2D;
     public color: string;
     public serverLocation: Point2D; // For Snapshot Sync 
-    
-    private speed: number;
+    public speed: number;
     
 
     // Snapshot Interpolation variables
@@ -19,12 +18,12 @@ export class Entity {
     public loc1: Point2D | null;
 
 
-    constructor(entityID: number, speed: number) {
+    constructor(entityID: number) {
         this.id = entityID;
         this.location = cloneDeep(PLAYER_SPAWN[entityID]);
         this.serverLocation = cloneDeep(PLAYER_SPAWN[entityID]);
         this.color = PLAYERS[entityID];
-        this.speed = speed;
+        this.speed = 50;
         this.loc0 = null;
         this.loc1 = null;
     }

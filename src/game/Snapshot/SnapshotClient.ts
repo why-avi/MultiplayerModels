@@ -12,7 +12,6 @@ import { SnapshotOptions } from "../../network/Settings";
 
 
 export class SnapshotClient extends GameLoop {
-    public ssEntitySpeed: number = 2;
     private timestamp_last: number = 0;
     public server!: Proxy;
 
@@ -47,7 +46,7 @@ export class SnapshotClient extends GameLoop {
     private processInput(): void {
         const timestamp_now = +new Date();
         const timestamp_last = this.timestamp_last || timestamp_now;
-        const timestamp_delta = (timestamp_now - timestamp_last) / (1000.0 / this.tickRate);
+        const timestamp_delta = (timestamp_now - timestamp_last) / (1000.0);
         this.timestamp_last = timestamp_now;
 
         // Record input with current delta time.
@@ -76,7 +75,7 @@ export class SnapshotClient extends GameLoop {
                 for (const snapEntity of snapshot) {
                     // Add a representation of an entity if it doesn't already exist.
                     if (!this.state.entities[snapEntity.entityID]) {
-                        const entity = new Entity(snapEntity.entityID, this.ssEntitySpeed);
+                        const entity = new Entity(snapEntity.entityID);
                         this.state.entities[entity.id] = entity;
                     }
 

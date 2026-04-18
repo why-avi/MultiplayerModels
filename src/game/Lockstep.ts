@@ -17,13 +17,13 @@ export class LockStep extends GameLoop {
 
     constructor(canvas: HTMLCanvasElement, id: number) {
         super(canvas, id)
-        this.state.entities[this.playerID] = new Entity(this.playerID, this.lsEntitySpeed)
+        this.state.entities[this.playerID] = new Entity(this.playerID)
     }
 
     public connect(peer: LockStep): void {
         this.peers.push(peer.network);
         if (!this.state.entities[peer.playerID]){
-            const entity = new Entity(peer.playerID, this.lsEntitySpeed);
+            const entity = new Entity(peer.playerID);
             this.state.entities[peer.playerID] = entity;
         }
     }

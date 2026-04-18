@@ -37,12 +37,13 @@ export class SnapshotServer {
         this.clients.push(client);
         
         // Create a new entity with the same ID as the connected client.
-        const entity = new Entity(client.playerID, client.ssEntitySpeed);
+        const entity = new Entity(client.playerID);
         this.state.entities[client.playerID] = entity;
     }
 
     public setTickRate(rate: number): void {
         this.tickRate = rate;
+        this.lastSend = 0;
     }
 
     public update(): void {
@@ -76,7 +77,7 @@ export class SnapshotServer {
 
     // Validate input
     private validateInput(input: InputPacket): boolean {
-        if (Math.abs(input.pressTime) > 2 / this.tickRate) return false;
+        if (Math.abs(input.pressTime) > 2) return false;
         return true;
     }
     
