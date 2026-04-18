@@ -19,12 +19,12 @@ export class Entity {
     public loc1: Point2D | null;
 
 
-    constructor(entityID: number) {
+    constructor(entityID: number, speed: number) {
         this.id = entityID;
         this.location = cloneDeep(PLAYER_SPAWN[entityID]);
         this.serverLocation = cloneDeep(PLAYER_SPAWN[entityID]);
         this.color = PLAYERS[entityID];
-        this.speed = 3;
+        this.speed = speed;
         this.loc0 = null;
         this.loc1 = null;
     }

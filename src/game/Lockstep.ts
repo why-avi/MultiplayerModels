@@ -13,16 +13,17 @@ export class LockStep extends GameLoop {
     private sentInput: boolean = false;
     private tickInputs: Map<number, InputPacket[]> = new Map();
     private lastTickTime: number = 0;
+    private lsEntitySpeed: number = 20;
 
     constructor(canvas: HTMLCanvasElement, id: number) {
         super(canvas, id)
-        this.state.entities[this.playerID] = new Entity(this.playerID)
+        this.state.entities[this.playerID] = new Entity(this.playerID, this.lsEntitySpeed)
     }
 
     public connect(peer: LockStep): void {
         this.peers.push(peer.network);
         if (!this.state.entities[peer.playerID]){
-            const entity = new Entity(peer.playerID);
+            const entity = new Entity(peer.playerID, this.lsEntitySpeed);
             this.state.entities[peer.playerID] = entity;
         }
     }

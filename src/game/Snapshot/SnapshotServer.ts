@@ -37,7 +37,7 @@ export class SnapshotServer {
         this.clients.push(client);
         
         // Create a new entity with the same ID as the connected client.
-        const entity = new Entity(client.playerID);
+        const entity = new Entity(client.playerID, client.ssEntitySpeed);
         this.state.entities[client.playerID] = entity;
     }
 

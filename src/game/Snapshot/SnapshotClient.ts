@@ -12,6 +12,7 @@ import { SnapshotOptions } from "../../network/Settings";
 
 
 export class SnapshotClient extends GameLoop {
+    public ssEntitySpeed: number = 2;
     private timestamp_last: number = 0;
     public server!: Proxy;
 
@@ -75,7 +76,7 @@ export class SnapshotClient extends GameLoop {
                 for (const snapEntity of snapshot) {
                     // Add a representation of an entity if it doesn't already exist.
                     if (!this.state.entities[snapEntity.entityID]) {
-                        const entity = new Entity(snapEntity.entityID);
+                        const entity = new Entity(snapEntity.entityID, this.ssEntitySpeed);
                         this.state.entities[entity.id] = entity;
                     }
 
