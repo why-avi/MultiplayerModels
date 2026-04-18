@@ -39,12 +39,15 @@ export class Render {
     private drawEntities(oldState: GameState, newState: GameState, alpha: number): void {
         if (this.options.serverPositions) {
             Object.values(newState.entities).forEach((entity) => {
-                this.drawServerPositions(entity);
+                if (this.localID == entity.id) {
+                    this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.serverLocation))
+                } else if (entity.loc0 && entity.loc1) {
+                    this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc0));
+                    this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc1));
+                }
             })
-        } else {
-            
-        }
-
+        } 
+        
         Object.values(newState.entities).forEach((entity) => {
             if (this.options.interpolation && oldState.entities[entity.id]) {
                 this.drawCircle(entity.color,
@@ -72,15 +75,6 @@ export class Render {
             this.ctx.lineWidth = 2;
             this.ctx.strokeStyle = "black"
             this.ctx.stroke();
-        }
-    }
-
-    private drawServerPositions(entity: Entity): void {
-        if (this.localID == entity.id) {
-            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.serverLocation))
-        } else if (entity.loc0 && entity.loc1) {
-            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc0));
-            this.drawCircle('rgba(0, 0, 0, 0.2)', toUnsafePoint2D(entity.loc1))
         }
     }
     
