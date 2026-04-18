@@ -112,10 +112,11 @@ export class SettingsManager {
                 this.options.snapshot[i].lossRate = value;
             });
 
-            Object.keys(this.options.snapshot[i].options).forEach(option => {
+            const checkboxOptions: (keyof SnapshotOptions)[] = ['prediction', 'reconciliation', 'interpolation', 'serverPositions'];
+            checkboxOptions.forEach(option => {
                 this.onCheck(`ss${i}${option}`, (value) => {
-                    this.snapshotClients[i].options[option as keyof SnapshotOptions] = value;
-                    this.options.snapshot[i].options[option as keyof SnapshotOptions] = value;
+                    this.snapshotClients[i].options[option] = value;
+                    this.options.snapshot[i].options[option] = value;
 
                     if (option === "reconciliation" && value === true) {
                         this.uiElements.snapshot[i].prediction.checked = true;
@@ -128,6 +129,8 @@ export class SettingsManager {
                         this.snapshotClients[i].options.reconciliation = false;
                         this.options.snapshot[i].options.reconciliation = false;
                     }
+
+                    this.snapshotClients[i].setRenderOptions(this.options.snapshot[i].options);
                 });
             })
         }
