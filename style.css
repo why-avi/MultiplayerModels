@@ -27,6 +27,62 @@ body {
     color: #0f172a;
 }
 
+.global-controls {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.global-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: #334155;
+}
+
+.global-row input[type="number"] {
+    width: 60px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    -moz-appearance: textfield;
+}
+
+.global-row input[type="number"]::-webkit-inner-spin-button,
+.global-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.global-row button {
+    background: #e2e8f0;
+    border: 1px solid #94a3b8;
+    color: #334155;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.global-row button:hover {
+    background: #cbd5e1;
+    border-color: #64748b;
+}
+
+.tick-description {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
 .sim-container {
     display: flex;
     gap: 24px;

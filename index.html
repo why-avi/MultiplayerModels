@@ -11,11 +11,19 @@
       <div class="head">
         <h1 class="title">Multiplayer Synchronization Methods Live Demo</h1>
       </div>
-
+        <div class="global-controls">
+          <div class="global-row">
+            <span>Tick Rate (Hz): <input id="tickRate" type="number" min="1" max="200" step="1"></span>
+            <button id="resetDefaults">Reset to Defaults</button>
+          </div>
+          <p class="tick-description">Default tick rate here is 15hz. Real games operate at higher tick rates, ranging from 30hz to 128hz.</p>
+        </div>
       <div class="sim-container">
 
         <div class="sim-panel">
           <h2 class="panel-title">Snapshot (Client/Server)</h2>
+
+          
 
           <div class="player-view">
             <p class="view-label">Player 1 — Controls: A and D</p>

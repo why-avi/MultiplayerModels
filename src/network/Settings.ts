@@ -1,5 +1,6 @@
 import { LockStep } from "../game/Lockstep";
 import { SnapshotClient } from "../game/Snapshot/SnapshotClient";
+import { SnapshotServer } from "../game/Snapshot/SnapshotServer";
 import { DEFAULT_SETTINGS, PLAYERS } from "../game/Constants";
 /** 
  * Settings for the network simulation.
@@ -37,7 +38,9 @@ export class SettingsManager {
     private readonly optionsKey = 'modelOptions'
     private lockstepClients: Array<LockStep> = [];
     private snapshotClients: Array<SnapshotClient> = [];
+    private snapshotServer: SnapshotServer;
     private uiElements!: {
+        globalTickRate: HTMLInputElement;
         snapshot: {
             prediction: HTMLInputElement;
             reconciliation: HTMLInputElement;
@@ -54,9 +57,10 @@ export class SettingsManager {
 
     public options: Options;
 
-    constructor(ss: SnapshotClient[], ls: LockStep[]) {
+    constructor(ss: SnapshotClient[], ls: LockStep[], server: SnapshotServer) {
         this.snapshotClients = ss;
         this.lockstepClients = ls;
+        this.snapshotServer = server;
         this.options = this.loadFromStorage() || DEFAULT_SETTINGS;
         this.save()
         this.initUI();
@@ -66,6 +70,7 @@ export class SettingsManager {
 
     private initUI(): void { 
         this.uiElements = {
+            globalTickRate: document.getElementById('tickRate') as HTMLInputElement,
             snapshot: PLAYERS.map((_, i) => ({
                 prediction: document.getElementById(`ss${i}prediction`) as HTMLInputElement,
                 reconciliation: document.getElementById(`ss${i}reconciliation`) as HTMLInputElement,
@@ -80,6 +85,15 @@ export class SettingsManager {
             }))
         }
         
+        this.onNumber('tickRate', (value: number) => {
+            this.options.global.tickRate = value;
+            this.snapshotClients.forEach(c => c.setTickRate(value));
+            this.lockstepClients.forEach(c => c.setTickRate(value));
+            this.snapshotServer.setTickRate(value);
+        });
+
+        document.getElementById('resetDefaults')!.addEventListener('click', () => this.resetToDefaults());
+
         for (let i = 0; i < PLAYERS.length; i++) {
             this.onNumber(`ls${i}latency`, (value: number) =>{
                 this.lockstepClients[i].latency = value;
@@ -97,7 +111,7 @@ export class SettingsManager {
                 this.snapshotClients[i].network.setLossRate(value);
                 this.options.snapshot[i].lossRate = value;
             });
-            
+
             Object.keys(this.options.snapshot[i].options).forEach(option => {
                 this.onCheck(`ss${i}${option}`, (value) => {
                     this.snapshotClients[i].options[option as keyof SnapshotOptions] = value;
@@ -120,6 +134,7 @@ export class SettingsManager {
     }
 
     private toUI(): void {
+        this.uiElements.globalTickRate.value = this.options.global.tickRate.toString()
         this.options.lockstep.forEach((saved, i) => {
             this.uiElements.lockstep[i].latency.value = saved.latency.toString();
             this.uiElements.lockstep[i].lossRate.value = saved.lossRate.toString();
@@ -134,6 +149,11 @@ export class SettingsManager {
     }
 
     private applyToGames(): void {
+        const tickRate = this.options.global.tickRate;
+        this.snapshotClients.forEach(c => c.setTickRate(tickRate));
+        this.lockstepClients.forEach(c => c.setTickRate(tickRate));
+        this.snapshotServer.setTickRate(tickRate);
+
         this.options.lockstep.forEach((saved, i) => {
             this.lockstepClients[i].latency = saved.latency;
             this.lockstepClients[i].network.setLossRate(saved.lossRate);
@@ -144,6 +164,13 @@ export class SettingsManager {
             this.snapshotClients[i].options = {...saved.options};
             this.snapshotClients[i].setRenderOptions(saved.options);
         });
+    }
+
+    private resetToDefaults(): void {
+        this.options = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        this.save();
+        this.toUI();
+        this.applyToGames();
     }
 
     private onNumber(name: string, apply: (value: number) => void): void {

@@ -18,7 +18,7 @@ interface Games {
 
 function init() {
     const Games = initGames(); 
-    const settingsManager = new SettingsManager(Games.Snapshot, Games.Lockstep);
+    const settingsManager = new SettingsManager(Games.Snapshot, Games.Lockstep, Games.Server);
     
     for (const client of Games.Snapshot) {
         Games.Server.connect(client);

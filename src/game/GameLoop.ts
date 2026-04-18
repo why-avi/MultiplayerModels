@@ -14,7 +14,7 @@ export interface GameState {
 
 export abstract class GameLoop {
     public playerID: number;
-    protected readonly tickRate: number = DEFAULT_SETTINGS.global.tickRate;
+    protected tickRate: number = DEFAULT_SETTINGS.global.tickRate;
     protected state: GameState = {entities: {}};
     protected oldState: GameState = {entities: {}};
     protected renderer: Render;
@@ -31,5 +31,9 @@ export abstract class GameLoop {
         this.renderer = new Render(canvas, {interpolation: false}, this.playerID);
         this.localInput = new Input(id);
         this.network = new Proxy();
+    }
+
+    public setTickRate(newTickRate: number) {
+        this.tickRate = newTickRate;
     }
 }
