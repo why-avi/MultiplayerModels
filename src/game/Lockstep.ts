@@ -10,9 +10,11 @@ import { Entity } from "./Entity";
 export class LockStep extends GameLoop {
     private peers: Proxy[] = [];
     private tick: number = 0;
-    private sentInput: boolean = false;
     private tickInputs: Map<number, InputPacket[]> = new Map();
     private lastTickTime: number = 0;
+    private lastSendTime: number = 0;
+    private resendInterval: number = 100;
+    private pendingInput: InputPacket | null = null;
     private lsEntitySpeed: number = 20;
 
     constructor(canvas: HTMLCanvasElement, id: number) {
@@ -31,19 +33,21 @@ export class LockStep extends GameLoop {
     update(): void {
         this.processMessages();
 
-        if (!this.sentInput) {
+        const now = +new Date();
+
+        if (now - this.lastSendTime >= this.resendInterval || this.lastSendTime === 0) {
             this.sendInput();
-            this.sentInput = true;
+            this.lastSendTime = now;
         }
 
-        const now = +new Date();
         const inputs = this.tickInputs.get(this.tick);
         if (inputs && inputs.length >= this.peers.length + 1 && now - this.lastTickTime >= 1000 / this.tickRate) {
             inputs.sort((a, b) => a.entityID - b.entityID);
             inputs.forEach(input => this.state.entities[input.entityID]?.applyInput(input));
             this.tickInputs.delete(this.tick);
             this.tick++;
-            this.sentInput = false;
+            this.lastSendTime = 0;
+            this.pendingInput = null;
             this.lastTickTime = now;
         }
 
@@ -51,11 +55,13 @@ export class LockStep extends GameLoop {
     }
 
     private sendInput(): void {
-        const input = this.localInput.getTickInput(1 / this.tickRate, this.playerID);
+        if (!this.pendingInput) {
+            this.pendingInput = this.localInput.getTickInput(1 / this.tickRate, this.playerID);
+            this.collectInput(this.tick, this.pendingInput);
+        }
 
-        this.collectInput(this.tick, input);
-
-        this.peers.forEach(peer => 
+        const input = this.pendingInput;
+        this.peers.forEach(peer =>
             peer.send({type: 'lockstep', payload: {tick: this.tick, inputs: input}},
                  this.latency));
     }
@@ -71,7 +77,8 @@ export class LockStep extends GameLoop {
 
     private collectInput(tick: number, input: InputPacket): void {
         if (!this.tickInputs.has(tick)) this.tickInputs.set(tick, []);
-        this.tickInputs.get(tick)!.push(input);
+        const existing = this.tickInputs.get(tick)!;
+        if (!existing.some(i => i.entityID === input.entityID)) existing.push(input);
     }
 
 
